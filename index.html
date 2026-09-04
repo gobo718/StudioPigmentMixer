@@ -31,7 +31,7 @@ th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;vertical-align:to
 <main>
 <div class="card">
 <h1>Studio Pigment Mixer — Named Primary Ladders</h1>
-<div class="muted">The exact HEX shown for each selected primary is the exact RGB value used for the secondary mixes. Red/Magenta and Blue can first be physically diluted with White through Mixbox itself. No hidden mixing profile exists. Every result is also given a conventional nearest-color name.</div>
+<div class="muted">The exact HEX shown for each selected primary is the exact RGB value used for the secondary mixes. Red/Magenta, Yellow, and Blue can each first be physically diluted with White through Mixbox itself. No hidden mixing profile exists. Every result is also given a conventional nearest-color name.</div>
 <div id="engineStatus" style="margin-top:10px">Loading Mixbox…</div>
 </div>
 
@@ -50,6 +50,8 @@ th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;vertical-align:to
 <div class="box">
 <b>Yellow ladder</b>
 <select id="yellowSel"></select>
+<label style="display:block;margin-top:10px">White mixed into Yellow: <b id="yellowWhiteVal">0%</b></label>
+<input id="yellowWhite" type="range" min="0" max="40" step="1" value="0" style="width:100%">
 <div id="yellowSw" class="swatch"></div>
 <div id="yellowInfo"></div>
 </div>
@@ -222,13 +224,17 @@ function showResult(prefix,hex){
 }
 function testCurrent(){
  if(!window.mixbox)return;
- const rBase=current(REDS,"redSel"),y=current(YELLOWS,"yellowSel"),bBase=current(BLUES,"blueSel");
+ const rBase=current(REDS,"redSel"),yBase=current(YELLOWS,"yellowSel"),bBase=current(BLUES,"blueSel");
  const rw=Number(document.getElementById("redWhite").value);
+ const yw=Number(document.getElementById("yellowWhite").value);
  const bw=Number(document.getElementById("blueWhite").value);
+
  document.getElementById("redWhiteVal").textContent=rw+"%";
+ document.getElementById("yellowWhiteVal").textContent=yw+"%";
  document.getElementById("blueWhiteVal").textContent=bw+"%";
 
  const r={label:rw?`${rBase.label} + ${rw}% White`:rBase.label,hex:mixWhite(rBase.hex,rw)};
+ const y={label:yw?`${yBase.label} + ${yw}% White`:yBase.label,hex:mixWhite(yBase.hex,yw)};
  const b={label:bw?`${bBase.label} + ${bw}% White`:bBase.label,hex:mixWhite(bBase.hex,bw)};
 
  showPrimary("red",r);
@@ -263,6 +269,7 @@ function runSweep(){
    </tr>`).join("");
 }
 document.getElementById("redWhite").oninput=testCurrent;
+document.getElementById("yellowWhite").oninput=testCurrent;
 document.getElementById("blueWhite").oninput=testCurrent;
 
 window.addEventListener("load",()=>{

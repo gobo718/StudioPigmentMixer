@@ -50,11 +50,11 @@ Each resulting Red+Yellow, Yellow+Blue, and Blue+Red mix displays:
 
 ## White dilution controls
 
-Red/Magenta and Blue now each have an independent 0–40% White control.
+Red/Magenta, Yellow, and Blue now each have an independent 0–40% White control.
 
 White dilution is performed through Mixbox itself:
 `mixbox.lerp(primary, white, dilutionAmount)`
 
 The resulting diluted pigment becomes the actual primary used in subsequent secondary mixing. Its resulting HEX, swatch, and conventional name are displayed directly.
 
-Yellow is intentionally left undiluted for this test.
+All three primaries can now be independently lightened before Orange, Green, and Purple are calculated.
