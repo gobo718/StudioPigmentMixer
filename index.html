@@ -97,14 +97,15 @@ code{background:var(--bg);padding:2px 6px;border-radius:4px}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/spectral.js@3.0.0/spectral.min.js"></script>
 <script>
 const mix={red:0,blue:0,yellow:0,white:0,black:0};
 const pigments={
-  red:{r:215,g:35,b:35},
-  blue:{r:30,g:85,b:195},
-  yellow:{r:245,g:210,b:25},
-  white:{r:255,g:255,b:255},
-  black:{r:25,g:25,b:25}
+  red:{hex:"#FF0000", tintingStrength:0.35},
+  blue:{hex:"#0000FF", tintingStrength:1.00},
+  yellow:{hex:"#FFFF00", tintingStrength:1.00},
+  white:{hex:"#FFFFFF", tintingStrength:1.00},
+  black:{hex:"#000000", tintingStrength:1.00}
 };
 
 function addPigment(color){
@@ -121,42 +122,86 @@ function resetMixer(){
   calculateMix();
 }
 
-function calculateMix(){
-  const total=Object.values(mix).reduce((a,b)=>a+b,0);
-  let r=255,g=255,b=255;
-  if(total>0){
-    let sr=0,sg=0,sb=0;
-    for(const key in mix){
-      sr+=mix[key]*pigments[key].r;
-      sg+=mix[key]*pigments[key].g;
-      sb+=mix[key]*pigments[key].b;
-    }
-    r=Math.round(sr/total); g=Math.round(sg/total); b=Math.round(sb/total);
+function buildSpectralPigment(key){
+  const definition=pigments[key];
+  const color=new spectral.Color(definition.hex);
+  color.tintingStrength=definition.tintingStrength;
+  return color;
+}
+
+function mixPigments(entries){
+  // This is the single general mixing path. No pair-specific secondary-color rules.
+  // Every pigment—base, mixed, or future unlocked pigment—can be represented by a
+  // spectral.Color and mixed through the same Kubelka-Munk engine.
+  const active=entries.filter(entry=>entry.amount>0);
+  if(active.length===0){
+    return new spectral.Color("#FFFFFF");
   }
 
-  document.getElementById("mixed-swatch").style.backgroundColor=`rgb(${r},${g},${b})`;
+  const args=active.map(entry=>{
+    const color=entry.color instanceof spectral.Color
+      ? entry.color
+      : buildSpectralPigment(entry.key);
+    return [color, entry.amount];
+  });
+
+  return spectral.mix(...args);
+}
+
+function calculateMix(){
+  const total=Object.values(mix).reduce((a,b)=>a+b,0);
+  const title=document.getElementById("classification-text");
+
+  if(typeof spectral==="undefined"){
+    document.getElementById("mixed-swatch").style.backgroundColor="#FFFFFF";
+    document.getElementById("mix-stats").innerHTML="Pigment engine failed to load.";
+    title.innerText="Pigment mixing unavailable";
+    return;
+  }
+
+  const result=mixPigments(Object.keys(mix).map(key=>({
+    key,
+    amount:mix[key]
+  })));
+
+  const hexWithHash=result.toString({format:"hex",method:"map"});
+  const hex=hexWithHash.slice(1).toUpperCase();
+  const rgb=hexToRgb(hex);
+  const {r,g,b}=rgb;
+
+  document.getElementById("mixed-swatch").style.backgroundColor=hexWithHash;
   const hsl=rgbToHsl(r,g,b);
-  const hex=rgbToHex(r,g,b);
 
   document.getElementById("mix-stats").innerHTML=
     `HEX: #${hex}<br>RGB: (${r}, ${g}, ${b})<br>HSL: (${hsl.h}°, ${hsl.s}%, ${hsl.l}%)`;
 
-  const earthyName = classify(total,hsl);
+  const earthyName=classify(total,hsl);
 
   if(total===0){
-    return "White";
+    title.innerText="White — #FFFFFF";
+    return;
   }
 
-  const title = document.getElementById("classification-text");
-  title.innerText=`Looking up #${hex}…`;
-
-  const colorName = getColorName(hex);
-
-  if(colorName){
-    title.innerText=`${colorName} — #${hex}`;
-  }else{
-    title.innerText=`${earthyName || "Unnamed Mix"} — #${hex}`;
+  // Exact single starting pigments keep their canonical names.
+  const activeKeys=Object.keys(mix).filter(k=>mix[k]>0);
+  let colorName=null;
+  if(activeKeys.length===1){
+    const key=activeKeys[0];
+    const canonical={
+      red:"Red",
+      blue:"Blue",
+      yellow:"Yellow",
+      white:"White",
+      black:"Black"
+    };
+    colorName=canonical[key];
   }
+
+  if(!colorName){
+    colorName=getColorName(hex);
+  }
+
+  title.innerText=`${colorName || earthyName || "Unnamed Mix"} — #${hex}`;
 }
 
 
