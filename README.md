@@ -66,21 +66,21 @@ A mixed color is a real Spectral.js `Color` object, not a special-case secondary
 The app intentionally does not fall back to RGB averaging if the spectral library fails to load; it reports that pigment mixing is unavailable instead of returning a misleading color.
 
 
-## Calibrated optical pigment profiles
-The five starting jars now separate **display identity** from **mixing behavior**.
+## Verified calibrated-profile build
+This build separates each starting Pigment's visible jar color from the hidden optical profile used for mixing.
 
-The player-facing jar colors remain exact:
+Visible jar colors:
 - Red `#FF0000`
 - Blue `#0000FF`
 - Yellow `#FFFF00`
 - White `#FFFFFF`
 - Black `#000000`
 
-The hidden chromatic optical profiles supplied to Spectral.js are:
+Hidden Spectral.js mixing profiles:
 - Red `#E53166`
 - Blue `#3375DA`
 - Yellow `#FCF046`
+- White `#FFFFFF`
+- Black `#000000`
 
-These three chromatic profiles are taken from Spectral.js's own multi-pigment example set. They are used only as physically-informed optical starting profiles; they do not change the jar's visible canonical color.
-
-There are **no Red+Yellow, Yellow+Blue, or Blue+Red result overrides**. All pair and later multi-Pigment mixtures run through the same `spectral.mix()` / Kubelka–Munk path. A resulting Spectral.js `Color` object can be reused as an input later, so secondaries and later mixtures carry their actual spectral state forward rather than becoming special-case labels.
+There are no pair-specific Orange, Green, or Purple output rules. All mixtures use the same Spectral.js/Kubelka–Munk `spectral.mix()` path, allowing mixed pigment state to carry forward into later mixtures.

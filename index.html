@@ -43,7 +43,7 @@ code{background:var(--bg);padding:2px 6px;border-radius:4px}
 <div class="container">
   <div class="panel full">
     <h1>Studio Pigment Mixer Prototype</h1>
-    <p class="subtitle">Standalone test harness for MASHPEDITION Studio pigment mixing. Mixed colors are automatically named through the Color Name API, with the local earthy classifier retained as a fallback.</p>
+    <p class="subtitle">Standalone test harness for MASHPEDITION Studio pigment mixing. Pigments are mixed through a spectral pigment model, then matched to conventional color names; the earthy classifier remains available for complex muddy mixtures.</p>
   </div>
 
   <div class="panel">
@@ -101,11 +101,31 @@ code{background:var(--bg);padding:2px 6px;border-radius:4px}
 <script>
 const mix={red:0,blue:0,yellow:0,white:0,black:0};
 const pigments={
-  red:{hex:"#FF0000", tintingStrength:0.35},
-  blue:{hex:"#0000FF", tintingStrength:1.00},
-  yellow:{hex:"#FFFF00", tintingStrength:1.00},
-  white:{hex:"#FFFFFF", tintingStrength:1.00},
-  black:{hex:"#000000", tintingStrength:1.00}
+  red:{
+    visibleHex:"#FF0000",
+    mixingHex:"#E53166",
+    tintingStrength:1.00
+  },
+  blue:{
+    visibleHex:"#0000FF",
+    mixingHex:"#3375DA",
+    tintingStrength:1.00
+  },
+  yellow:{
+    visibleHex:"#FFFF00",
+    mixingHex:"#FCF046",
+    tintingStrength:1.00
+  },
+  white:{
+    visibleHex:"#FFFFFF",
+    mixingHex:"#FFFFFF",
+    tintingStrength:1.00
+  },
+  black:{
+    visibleHex:"#000000",
+    mixingHex:"#000000",
+    tintingStrength:1.00
+  }
 };
 
 function addPigment(color){
@@ -124,11 +144,14 @@ function resetMixer(){
 
 function buildSpectralPigment(key){
   const definition=pigments[key];
-  const color=new spectral.Color(definition.hex);
+  const color=new spectral.Color(definition.mixingHex);
   color.tintingStrength=definition.tintingStrength;
   return color;
 }
 
+// Every color mixture uses this same spectral path.
+// There are NO hard-coded Red+Yellow, Yellow+Blue, or Blue+Red result colors.
+// Mixed Spectral.js Color objects can be reused later as pigment inputs.
 function mixPigments(entries){
   // This is the single general mixing path. No pair-specific secondary-color rules.
   // Every pigment—base, mixed, or future unlocked pigment—can be represented by a
