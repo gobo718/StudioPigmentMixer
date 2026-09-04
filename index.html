@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Pigment Mixer</title>
+<style>
+:root{
+  --bg:#f4f1ea;--panel:#fff;--text:#3a3530;--muted:#7c7267;--border:#e2ded4;
+  --lb:#b58d63;--bb:#785231;--db:#422d1b;
+  --lg:#8fa882;--bg2:#526646;--dg:#2d3b26;
+  --lgr:#b0b5b2;--bgr:#6e7370;--dgr:#353836;
+  --red:#d32f2f;--blue:#1976d2;--yellow:#fbc02d;--white:#fff;--black:#1a1a1a;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{background:var(--bg);color:var(--text);padding:20px;display:flex;justify-content:center;min-height:100vh}
+.container{width:100%;max-width:1100px;display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:768px){.container{grid-template-columns:1fr 1fr}.full{grid-column:span 2}}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(58,53,48,.05)}
+h1{font-size:1.8rem;margin-bottom:8px}h2{font-size:1.3rem;margin-bottom:16px;border-bottom:2px solid var(--bg);padding-bottom:8px}
+.subtitle{color:var(--muted);margin-bottom:20px;font-size:.95rem;line-height:1.4}
+.pigment-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.pigment-btn{display:flex;flex-direction:column;align-items:center;background:none;border:2px solid var(--border);border-radius:8px;padding:12px 4px;cursor:pointer}
+.dot{width:32px;height:32px;border-radius:50%;margin-bottom:8px;box-shadow:inset 0 2px 4px rgba(0,0,0,.15)}
+.label{font-size:.8rem;font-weight:600}.count{font-size:.85rem;color:var(--muted);margin-top:4px;background:var(--bg);padding:2px 8px;border-radius:10px}
+.action{display:flex;gap:10px;margin-bottom:24px}.btn{flex:1;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-weight:600;cursor:pointer}
+.preview{display:flex;align-items:center;gap:20px;background:var(--bg);padding:16px;border-radius:8px;margin-top:16px}
+.swatch{width:70px;height:70px;border-radius:10px;border:1px solid rgba(0,0,0,.1)}
+.title{font-weight:700;font-size:1.1rem;margin-bottom:4px}.stats{font-family:monospace;font-size:.85rem;color:var(--muted)}
+.bucket-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.bucket{border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;position:relative}
+.bucket.active{border-color:#3a3530;transform:scale(1.05);box-shadow:0 10px 20px rgba(58,53,48,.15)}
+.bucket.active::after{content:"MATCH";position:absolute;top:-10px;right:-10px;background:#3a3530;color:#fff;font-size:.65rem;font-weight:800;padding:3px 6px;border-radius:4px}
+.bucket-swatch{width:100%;height:50px;border-radius:6px;margin-bottom:8px}
+.bucket-name{font-size:.8rem;font-weight:700}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.9rem}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}th{background:var(--bg)}
+code{background:var(--bg);padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="panel full">
+    <h1>Studio Pigment Mixer Prototype</h1>
+    <p class="subtitle">Standalone test harness for MASHPEDITION Studio pigment mixing. This is not the final unlock progression.</p>
+  </div>
+
+  <div class="panel">
+    <h2>1. Pigment Mixer</h2>
+    <p class="subtitle">Click Pigments to add drops to the current mixture.</p>
+    <div class="pigment-grid">
+      <button class="pigment-btn" onclick="addPigment('red')"><div class="dot" style="background:var(--red)"></div><span class="label">Red</span><span class="count" id="count-red">0</span></button>
+      <button class="pigment-btn" onclick="addPigment('blue')"><div class="dot" style="background:var(--blue)"></div><span class="label">Blue</span><span class="count" id="count-blue">0</span></button>
+      <button class="pigment-btn" onclick="addPigment('yellow')"><div class="dot" style="background:var(--yellow)"></div><span class="label">Yellow</span><span class="count" id="count-yellow">0</span></button>
+      <button class="pigment-btn" onclick="addPigment('white')"><div class="dot" style="background:var(--white);border:1px solid var(--border)"></div><span class="label">White</span><span class="count" id="count-white">0</span></button>
+      <button class="pigment-btn" onclick="addPigment('black')"><div class="dot" style="background:var(--black)"></div><span class="label">Black</span><span class="count" id="count-black">0</span></button>
+    </div>
+    <div class="action"><button class="btn" onclick="resetMixer()">Clear Mixer</button></div>
+    <h2>Current Mixture</h2>
+    <div class="preview">
+      <div class="swatch" id="mixed-swatch" style="background:#fff"></div>
+      <div>
+        <div class="title" id="classification-text">Empty Mixer (White)</div>
+        <div class="stats" id="mix-stats">RGB: (255, 255, 255)<br>HSL: (0°, 0%, 100%)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>2. Earthy Classification Test</h2>
+    <p class="subtitle">Experimental naming for muddy mixtures that become hard to name conventionally.</p>
+    <div class="bucket-grid">
+      <div class="bucket" id="bucket-light-brown"><div class="bucket-swatch" style="background:var(--lb)"></div><div class="bucket-name">Light Earthy Brown</div></div>
+      <div class="bucket" id="bucket-base-brown"><div class="bucket-swatch" style="background:var(--bb)"></div><div class="bucket-name">Earthy Brown</div></div>
+      <div class="bucket" id="bucket-dark-brown"><div class="bucket-swatch" style="background:var(--db)"></div><div class="bucket-name">Dark Earthy Brown</div></div>
+      <div class="bucket" id="bucket-light-green"><div class="bucket-swatch" style="background:var(--lg)"></div><div class="bucket-name">Light Earthy Green</div></div>
+      <div class="bucket" id="bucket-base-green"><div class="bucket-swatch" style="background:var(--bg2)"></div><div class="bucket-name">Earthy Green</div></div>
+      <div class="bucket" id="bucket-dark-green"><div class="bucket-swatch" style="background:var(--dg)"></div><div class="bucket-name">Dark Earthy Green</div></div>
+      <div class="bucket" id="bucket-light-grey"><div class="bucket-swatch" style="background:var(--lgr)"></div><div class="bucket-name">Light Earthy Grey</div></div>
+      <div class="bucket" id="bucket-base-grey"><div class="bucket-swatch" style="background:var(--bgr)"></div><div class="bucket-name">Earthy Grey</div></div>
+      <div class="bucket" id="bucket-dark-grey"><div class="bucket-swatch" style="background:var(--dgr)"></div><div class="bucket-name">Dark Earthy Grey</div></div>
+    </div>
+  </div>
+
+  <div class="panel full">
+    <h2>3. Current Prototype Thresholds</h2>
+    <p class="subtitle">These thresholds are experimental and can be replaced as the actual Pigment system is calibrated.</p>
+    <table>
+      <thead><tr><th>Group</th><th>Rule</th><th>Light</th><th>Base</th><th>Dark</th></tr></thead>
+      <tbody>
+        <tr><td>Earthy Greys</td><td><code>Saturation &lt; 14%</code></td><td>Light Earthy Grey</td><td>Earthy Grey</td><td>Dark Earthy Grey</td></tr>
+        <tr><td>Earthy Greens</td><td><code>Hue 48°–165°</code></td><td>Light Earthy Green</td><td>Earthy Green</td><td>Dark Earthy Green</td></tr>
+        <tr><td>Earthy Browns</td><td>Fallback muddy hues</td><td>Light Earthy Brown</td><td>Earthy Brown</td><td>Dark Earthy Brown</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const mix={red:0,blue:0,yellow:0,white:0,black:0};
+const pigments={
+  red:{r:215,g:35,b:35},
+  blue:{r:30,g:85,b:195},
+  yellow:{r:245,g:210,b:25},
+  white:{r:255,g:255,b:255},
+  black:{r:25,g:25,b:25}
+};
+
+function addPigment(color){
+  mix[color]++;
+  document.getElementById(`count-${color}`).innerText=mix[color];
+  calculateMix();
+}
+
+function resetMixer(){
+  for(const key in mix){
+    mix[key]=0;
+    document.getElementById(`count-${key}`).innerText=0;
+  }
+  calculateMix();
+}
+
+function calculateMix(){
+  const total=Object.values(mix).reduce((a,b)=>a+b,0);
+  let r=255,g=255,b=255;
+  if(total>0){
+    let sr=0,sg=0,sb=0;
+    for(const key in mix){
+      sr+=mix[key]*pigments[key].r;
+      sg+=mix[key]*pigments[key].g;
+      sb+=mix[key]*pigments[key].b;
+    }
+    r=Math.round(sr/total); g=Math.round(sg/total); b=Math.round(sb/total);
+  }
+  document.getElementById("mixed-swatch").style.backgroundColor=`rgb(${r},${g},${b})`;
+  const hsl=rgbToHsl(r,g,b);
+  document.getElementById("mix-stats").innerHTML=`RGB: (${r}, ${g}, ${b})<br>HSL: (${hsl.h}°, ${hsl.s}%, ${hsl.l}%)`;
+  classify(total,hsl);
+}
+
+function rgbToHsl(r,g,b){
+  r/=255;g/=255;b/=255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b);
+  let h=0,s=0,l=(max+min)/2;
+  if(max!==min){
+    const d=max-min;
+    s=l>.5?d/(2-max-min):d/(max+min);
+    switch(max){
+      case r:h=(g-b)/d+(g<b?6:0);break;
+      case g:h=(b-r)/d+2;break;
+      default:h=(r-g)/d+4;
+    }
+    h/=6;
+  }
+  return {h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};
+}
+
+function classify(total,hsl){
+  document.querySelectorAll(".bucket").forEach(el=>el.classList.remove("active"));
+  if(total===0){
+    document.getElementById("classification-text").innerText="Empty Mixer (White)";
+    return;
+  }
+
+  let category="brown";
+  if(hsl.s<14) category="grey";
+  else if(hsl.h>=48&&hsl.h<=165) category="green";
+
+  let shade="base";
+  if(hsl.l>52) shade="light";
+  else if(hsl.l<28) shade="dark";
+
+  const key=`${shade}-${category}`;
+  const names={
+    "light-grey":"Light Earthy Grey","base-grey":"Earthy Grey","dark-grey":"Dark Earthy Grey",
+    "light-green":"Light Earthy Green","base-green":"Earthy Green","dark-green":"Dark Earthy Green",
+    "light-brown":"Light Earthy Brown","base-brown":"Earthy Brown","dark-brown":"Dark Earthy Brown"
+  };
+
+  const card=document.getElementById(`bucket-${key}`);
+  if(card) card.classList.add("active");
+  document.getElementById("classification-text").innerText=`Classified: ${names[key]}`;
+}
+
+calculateMix();
+</script>
+</body>
+</html>
