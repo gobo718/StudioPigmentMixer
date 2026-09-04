@@ -28,3 +28,9 @@ If a color name is returned, the UI displays:
 If the API request fails, the mixer continues working and falls back to the local earthy classification.
 
 A small in-memory cache prevents repeat API calls for the same HEX value during a session.
+
+
+## Conventional local color naming
+Color Pizza has been removed. The prototype now names mixed colors locally against the conventional HTML/CSS color vocabulary used as one of ColorNameAssistant's selectable color lists. Matching is performed in perceptual Lab space rather than by an external naming API.
+
+This keeps basic names conventional (Yellow is Yellow, Red is Red, etc.), removes the network/API dependency, and avoids novelty-name results.
