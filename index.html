@@ -43,7 +43,7 @@ code{background:var(--bg);padding:2px 6px;border-radius:4px}
 <div class="container">
   <div class="panel full">
     <h1>Studio Pigment Mixer Prototype</h1>
-    <p class="subtitle">Standalone test harness for MASHPEDITION Studio pigment mixing. This is not the final unlock progression.</p>
+    <p class="subtitle">Standalone test harness for MASHPEDITION Studio pigment mixing. Mixed colors are automatically named through the Color Name API, with the local earthy classifier retained as a fallback.</p>
   </div>
 
   <div class="panel">
@@ -121,7 +121,7 @@ function resetMixer(){
   calculateMix();
 }
 
-function calculateMix(){
+async function calculateMix(){
   const total=Object.values(mix).reduce((a,b)=>a+b,0);
   let r=255,g=255,b=255;
   if(total>0){
@@ -133,10 +133,58 @@ function calculateMix(){
     }
     r=Math.round(sr/total); g=Math.round(sg/total); b=Math.round(sb/total);
   }
+
   document.getElementById("mixed-swatch").style.backgroundColor=`rgb(${r},${g},${b})`;
   const hsl=rgbToHsl(r,g,b);
-  document.getElementById("mix-stats").innerHTML=`RGB: (${r}, ${g}, ${b})<br>HSL: (${hsl.h}°, ${hsl.s}%, ${hsl.l}%)`;
-  classify(total,hsl);
+  const hex=rgbToHex(r,g,b);
+
+  document.getElementById("mix-stats").innerHTML=
+    `HEX: #${hex}<br>RGB: (${r}, ${g}, ${b})<br>HSL: (${hsl.h}°, ${hsl.s}%, ${hsl.l}%)`;
+
+  const earthyName = classify(total,hsl);
+
+  if(total===0){
+    return "White";
+  }
+
+  const title = document.getElementById("classification-text");
+  title.innerText=`Looking up #${hex}…`;
+
+  const colorName = await getColorName(hex);
+
+  if(colorName){
+    title.innerText=`${colorName} — #${hex}`;
+  }else{
+    title.innerText=`${earthyName || "Unnamed Mix"} — #${hex}`;
+  }
+}
+
+
+function rgbToHex(r,g,b){
+  return [r,g,b]
+    .map(v=>Math.max(0,Math.min(255,v)).toString(16).padStart(2,"0"))
+    .join("")
+    .toUpperCase();
+}
+
+const colorNameCache = new Map();
+
+async function getColorName(hex){
+  if(colorNameCache.has(hex)) return colorNameCache.get(hex);
+
+  try{
+    const response = await fetch(`https://api.color.pizza/v1/?values=${hex}`);
+    if(!response.ok) throw new Error(`Color API HTTP ${response.status}`);
+
+    const data = await response.json();
+    const name = data?.colors?.[0]?.name || null;
+
+    if(name) colorNameCache.set(hex,name);
+    return name;
+  }catch(error){
+    console.warn("Color name lookup failed:", error);
+    return null;
+  }
 }
 
 function rgbToHsl(r,g,b){
@@ -159,8 +207,7 @@ function rgbToHsl(r,g,b){
 function classify(total,hsl){
   document.querySelectorAll(".bucket").forEach(el=>el.classList.remove("active"));
   if(total===0){
-    document.getElementById("classification-text").innerText="Empty Mixer (White)";
-    return;
+    return "White";
   }
 
   let category="brown";
@@ -180,7 +227,7 @@ function classify(total,hsl){
 
   const card=document.getElementById(`bucket-${key}`);
   if(card) card.classList.add("active");
-  document.getElementById("classification-text").innerText=`Classified: ${names[key]}`;
+  return names[key];
 }
 
 calculateMix();
