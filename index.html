@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
 <title>Studio Pigment Mixer</title>
 <style>
 :root{
@@ -12,8 +13,9 @@
   --lgr:#b0b5b2;--bgr:#6e7370;--dgr:#353836;
   --red:#d32f2f;--blue:#1976d2;--yellow:#fbc02d;--white:#fff;--black:#1a1a1a;
 }
+html{color-scheme:light only;background:#f4f1ea;}
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-body{background:var(--bg);color:var(--text);padding:20px;display:flex;justify-content:center;min-height:100vh}
+body{color-scheme:light only;background:var(--bg);color:var(--text);padding:20px;display:flex;justify-content:center;min-height:100vh}
 .container{width:100%;max-width:1100px;display:grid;grid-template-columns:1fr;gap:20px}
 @media(min-width:768px){.container{grid-template-columns:1fr 1fr}.full{grid-column:span 2}}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(58,53,48,.05)}
