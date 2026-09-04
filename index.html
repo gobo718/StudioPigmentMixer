@@ -31,7 +31,7 @@ th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;vertical-align:to
 <main>
 <div class="card">
 <h1>Studio Pigment Mixer — Named Primary Ladders</h1>
-<div class="muted">The exact HEX shown for each selected primary is the exact RGB value passed into Mixbox. No hidden mixing profile exists. Every result is also given a conventional nearest-color name.</div>
+<div class="muted">The exact HEX shown for each selected primary is the exact RGB value used for the secondary mixes. Red/Magenta and Blue can first be physically diluted with White through Mixbox itself. No hidden mixing profile exists. Every result is also given a conventional nearest-color name.</div>
 <div id="engineStatus" style="margin-top:10px">Loading Mixbox…</div>
 </div>
 
@@ -41,6 +41,8 @@ th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;vertical-align:to
 <div class="box">
 <b>Red / Magenta ladder</b>
 <select id="redSel"></select>
+<label style="display:block;margin-top:10px">White mixed into Red/Magenta: <b id="redWhiteVal">0%</b></label>
+<input id="redWhite" type="range" min="0" max="40" step="1" value="0" style="width:100%">
 <div id="redSw" class="swatch"></div>
 <div id="redInfo"></div>
 </div>
@@ -55,6 +57,8 @@ th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;vertical-align:to
 <div class="box">
 <b>Blue ladder</b>
 <select id="blueSel"></select>
+<label style="display:block;margin-top:10px">White mixed into Blue: <b id="blueWhiteVal">0%</b></label>
+<input id="blueWhite" type="range" min="0" max="40" step="1" value="0" style="width:100%">
 <div id="blueSw" class="swatch"></div>
 <div id="blueInfo"></div>
 </div>
@@ -163,6 +167,15 @@ function mixHex(a,b){
  if(!hex)throw new Error("Could not parse Mixbox output: "+out);
  return hex;
 }
+
+function mixWhite(hex,percent){
+  if(percent<=0)return hex;
+  const out=mixbox.lerp(rgbString(hex),rgbString("#FFFFFF"),percent/100);
+  const mixed=rgbStringToHex(out);
+  if(!mixed)throw new Error("Could not parse Mixbox white-dilution output: "+out);
+  return mixed;
+}
+
 function nearestName(hex){
  const c=hexRgb(hex);
  let best=null,bd=Infinity;
@@ -209,8 +222,19 @@ function showResult(prefix,hex){
 }
 function testCurrent(){
  if(!window.mixbox)return;
- const r=current(REDS,"redSel"),y=current(YELLOWS,"yellowSel"),b=current(BLUES,"blueSel");
- showPrimary("red",r);showPrimary("yellow",y);showPrimary("blue",b);
+ const rBase=current(REDS,"redSel"),y=current(YELLOWS,"yellowSel"),bBase=current(BLUES,"blueSel");
+ const rw=Number(document.getElementById("redWhite").value);
+ const bw=Number(document.getElementById("blueWhite").value);
+ document.getElementById("redWhiteVal").textContent=rw+"%";
+ document.getElementById("blueWhiteVal").textContent=bw+"%";
+
+ const r={label:rw?`${rBase.label} + ${rw}% White`:rBase.label,hex:mixWhite(rBase.hex,rw)};
+ const b={label:bw?`${bBase.label} + ${bw}% White`:bBase.label,hex:mixWhite(bBase.hex,bw)};
+
+ showPrimary("red",r);
+ showPrimary("yellow",y);
+ showPrimary("blue",b);
+
  showResult("o",mixHex(r.hex,y.hex));
  showResult("g",mixHex(y.hex,b.hex));
  showResult("p",mixHex(b.hex,r.hex));
@@ -238,6 +262,9 @@ function runSweep(){
    <td>${x.score.toFixed(1)}</td>
    </tr>`).join("");
 }
+document.getElementById("redWhite").oninput=testCurrent;
+document.getElementById("blueWhite").oninput=testCurrent;
+
 window.addEventListener("load",()=>{
  if(window.mixbox){
    document.getElementById("engineStatus").innerHTML='<span class="good">✓ Official Mixbox loaded.</span>';
