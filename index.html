@@ -43,7 +43,7 @@ code{background:var(--bg);padding:2px 6px;border-radius:4px}
 <div class="container">
   <div class="panel full">
     <h1>Studio Pigment Mixer Prototype</h1>
-    <p class="subtitle">Standalone test harness for MASHPEDITION Studio pigment mixing. Pigments are mixed through a spectral pigment model, then matched to conventional color names; the earthy classifier remains available for complex muddy mixtures.</p>
+    <p class="subtitle">Standalone test harness for MASHPEDITION Studio pigment mixing. Pigments are mixed through one shared calibrated RYB pigment model, then matched to conventional color names; the earthy classifier remains available for complex muddy mixtures.</p>
   </div>
 
   <div class="panel">
@@ -96,36 +96,14 @@ code{background:var(--bg);padding:2px 6px;border-radius:4px}
     </table>
   </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/spectral.js@3.0.0/spectral.min.js"></script>
 <script>
 const mix={red:0,blue:0,yellow:0,white:0,black:0};
 const pigments={
-  red:{
-    visibleHex:"#FF0000",
-    mixingHex:"#E53166",
-    tintingStrength:1.00
-  },
-  blue:{
-    visibleHex:"#0000FF",
-    mixingHex:"#3375DA",
-    tintingStrength:1.00
-  },
-  yellow:{
-    visibleHex:"#FFFF00",
-    mixingHex:"#FCF046",
-    tintingStrength:1.00
-  },
-  white:{
-    visibleHex:"#FFFFFF",
-    mixingHex:"#FFFFFF",
-    tintingStrength:1.00
-  },
-  black:{
-    visibleHex:"#000000",
-    mixingHex:"#000000",
-    tintingStrength:1.00
-  }
+  red:{visibleHex:"#FF0000",mixingHex:"#DE610F"},
+  blue:{visibleHex:"#0000FF",mixingHex:"#0B00F1"},
+  yellow:{visibleHex:"#FFFF00",mixingHex:"#F1FF00"},
+  white:{visibleHex:"#FFFFFF",mixingHex:"#FFFFFF"},
+  black:{visibleHex:"#000000",mixingHex:"#000000"}
 };
 
 function addPigment(color){
@@ -142,91 +120,157 @@ function resetMixer(){
   calculateMix();
 }
 
-function buildSpectralPigment(key){
-  const definition=pigments[key];
-  const color=new spectral.Color(definition.mixingHex);
-  color.tintingStrength=definition.tintingStrength;
-  return color;
-}
+/*
+  Shared-primary calibrated RYB mixer.
 
-// Every color mixture uses this same spectral path.
-// There are NO hard-coded Red+Yellow, Yellow+Blue, or Blue+Red result colors.
-// Mixed Spectral.js Color objects can be reused later as pigment inputs.
-function mixPigments(entries){
-  // This is the single general mixing path. No pair-specific secondary-color rules.
-  // Every pigment—base, mixed, or future unlocked pigment—can be represented by a
-  // spectral.Color and mixed through the same Kubelka-Munk engine.
-  const active=entries.filter(entry=>entry.amount>0);
-  if(active.length===0){
-    return new spectral.Color("#FFFFFF");
+  Visible jars:
+    Red #FF0000, Yellow #FFFF00, Blue #0000FF
+
+  Shared hidden mixing profiles:
+    Red #DE610F, Yellow #F1FF00, Blue #0B00F1
+
+  The same hidden primary is used regardless of its partner.
+  Every mixture follows the same RGB -> RYB -> weighted-average -> RGB transform.
+*/
+
+function rgbObjectToRyb({r,g,b}){
+  r/=255; g/=255; b/=255;
+  const white=Math.min(r,g,b);
+  r-=white; g-=white; b-=white;
+
+  const maxGreen=Math.max(r,g,b);
+  let y=Math.min(r,g);
+  r-=y;
+  g-=y;
+
+  if(b>0 && g>0){
+    b/=2;
+    g/=2;
   }
 
-  const args=active.map(entry=>{
-    const color=entry.color instanceof spectral.Color
-      ? entry.color
-      : buildSpectralPigment(entry.key);
-    return [color, entry.amount];
-  });
+  y+=g;
+  b+=g;
 
-  return spectral.mix(...args);
+  const maxYellow=Math.max(r,y,b);
+  if(maxYellow>0){
+    const scale=maxGreen/maxYellow;
+    r*=scale; y*=scale; b*=scale;
+  }
+
+  return {r:r+white,y:y+white,b:b+white};
+}
+
+function rybToRgbObject({r,y,b}){
+  const white=Math.min(r,y,b);
+  r-=white; y-=white; b-=white;
+
+  const maxYellow=Math.max(r,y,b);
+  let g=Math.min(y,b);
+  y-=g;
+  b-=g;
+
+  if(b>0 && g>0){
+    b*=2;
+    g*=2;
+  }
+
+  r+=y;
+  g+=y;
+
+  const maxGreen=Math.max(r,g,b);
+  if(maxGreen>0){
+    const scale=maxYellow/maxGreen;
+    r*=scale; g*=scale; b*=scale;
+  }
+
+  return {
+    r:Math.round(Math.max(0,Math.min(1,r+white))*255),
+    g:Math.round(Math.max(0,Math.min(1,g+white))*255),
+    b:Math.round(Math.max(0,Math.min(1,b+white))*255)
+  };
+}
+
+function buildPigmentState(key){
+  return {
+    ryb:rgbObjectToRyb(hexToRgb(pigments[key].mixingHex)),
+    parts:1
+  };
+}
+
+function mixPigmentStates(entries){
+  const active=entries.filter(entry=>entry.amount>0);
+  if(active.length===0){
+    return {ryb:rgbObjectToRyb({r:255,g:255,b:255}),parts:0};
+  }
+
+  let totalParts=0;
+  const sum={r:0,y:0,b:0};
+
+  for(const entry of active){
+    const state=entry.state || buildPigmentState(entry.key);
+    const weightedParts=state.parts*entry.amount;
+    totalParts+=weightedParts;
+    sum.r+=state.ryb.r*weightedParts;
+    sum.y+=state.ryb.y*weightedParts;
+    sum.b+=state.ryb.b*weightedParts;
+  }
+
+  return {
+    ryb:{
+      r:sum.r/totalParts,
+      y:sum.y/totalParts,
+      b:sum.b/totalParts
+    },
+    parts:totalParts
+  };
+}
+
+function createMixedPigmentState(entries){
+  return mixPigmentStates(entries);
 }
 
 function calculateMix(){
   const total=Object.values(mix).reduce((a,b)=>a+b,0);
   const title=document.getElementById("classification-text");
 
-  if(typeof spectral==="undefined"){
+  if(total===0){
     document.getElementById("mixed-swatch").style.backgroundColor="#FFFFFF";
-    document.getElementById("mix-stats").innerHTML="Pigment engine failed to load.";
-    title.innerText="Pigment mixing unavailable";
+    document.getElementById("mix-stats").innerHTML=
+      "HEX: #FFFFFF<br>RGB: (255, 255, 255)<br>HSL: (0°, 0%, 100%)";
+    title.innerText="White — #FFFFFF";
+    classify(0,{h:0,s:0,l:100});
     return;
   }
 
-  const result=mixPigments(Object.keys(mix).map(key=>({
-    key,
-    amount:mix[key]
-  })));
+  const state=mixPigmentStates(
+    Object.keys(mix).map(key=>({key,amount:mix[key]}))
+  );
+  const {r,g,b}=rybToRgbObject(state.ryb);
+  const hex=rgbToHex(r,g,b);
 
-  const hexWithHash=result.toString({format:"hex",method:"map"});
-  const hex=hexWithHash.slice(1).toUpperCase();
-  const rgb=hexToRgb(hex);
-  const {r,g,b}=rgb;
-
-  document.getElementById("mixed-swatch").style.backgroundColor=hexWithHash;
+  document.getElementById("mixed-swatch").style.backgroundColor=`#${hex}`;
   const hsl=rgbToHsl(r,g,b);
-
   document.getElementById("mix-stats").innerHTML=
     `HEX: #${hex}<br>RGB: (${r}, ${g}, ${b})<br>HSL: (${hsl.h}°, ${hsl.s}%, ${hsl.l}%)`;
 
-  const earthyName=classify(total,hsl);
-
-  if(total===0){
-    title.innerText="White — #FFFFFF";
-    return;
-  }
-
-  // Exact single starting pigments keep their canonical names.
   const activeKeys=Object.keys(mix).filter(k=>mix[k]>0);
   let colorName=null;
+
   if(activeKeys.length===1){
-    const key=activeKeys[0];
-    const canonical={
+    colorName={
       red:"Red",
       blue:"Blue",
       yellow:"Yellow",
       white:"White",
       black:"Black"
-    };
-    colorName=canonical[key];
+    }[activeKeys[0]];
   }
 
-  if(!colorName){
-    colorName=getColorName(hex);
-  }
+  if(!colorName) colorName=getColorName(hex);
 
+  const earthyName=classify(total,hsl);
   title.innerText=`${colorName || earthyName || "Unnamed Mix"} — #${hex}`;
 }
-
 
 function rgbToHex(r,g,b){
   return [r,g,b]

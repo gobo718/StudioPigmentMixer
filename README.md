@@ -84,3 +84,28 @@ Hidden Spectral.js mixing profiles:
 - Black `#000000`
 
 There are no pair-specific Orange, Green, or Purple output rules. All mixtures use the same Spectral.js/Kubelka–Munk `spectral.mix()` path, allowing mixed pigment state to carry forward into later mixtures.
+
+
+## Shared-primary calibration
+
+Visible jars remain:
+- Red `#FF0000`
+- Yellow `#FFFF00`
+- Blue `#0000FF`
+
+Shared hidden mixing profiles found by simultaneous numerical search:
+- Red `#DE610F`
+- Yellow `#F1FF00`
+- Blue `#0B00F1`
+
+There is only one hidden profile per primary. The same Red is used with Yellow and Blue; the same Yellow is used with Red and Blue; the same Blue is used with Yellow and Red.
+
+### General-mixer validation
+- Red + Yellow → `#CB8B0F` RGB(203, 139, 15)
+- Yellow + Blue → `#068006` RGB(6, 128, 6)
+- Blue + Red → `#744B80` RGB(116, 75, 128)
+
+Validation checks color family and saturation rather than requiring an exact preselected secondary HEX. The active mixing engine contains no Orange, Green, or Purple target HEX values and no pair-specific output branches.
+
+### Carry-forward
+Stored Red+Yellow mixture + Blue → `#7B874E`. Direct Red+Yellow+Blue → `#7B874E`. They are identical because the stored mixture retains its RYB state and original part count.
