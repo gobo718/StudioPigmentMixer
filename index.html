@@ -4,113 +4,148 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only">
-<title>Studio Pigment Mixer — Mixbox Primary Test</title>
+<title>Studio Pigment Mixer — Named Primary Ladders</title>
 <style>
 html{color-scheme:light only;background:#f5f1e9}
 *{box-sizing:border-box}
 body{margin:0;padding:18px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f1e9;color:#2e2925}
-main{max-width:1080px;margin:auto}
+main{max-width:1120px;margin:auto}
 .card{background:#fff;border:1px solid #d9d1c6;border-radius:14px;padding:16px;margin-bottom:16px}
-h1{margin:0 0 6px;font-size:24px}h2{font-size:18px;margin:0 0 12px}
+h1{margin:0 0 6px;font-size:24px}h2{font-size:19px;margin:0 0 12px}
 .muted{color:#756d65;font-size:13px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media(max-width:760px){.grid{grid-template-columns:1fr}}
 .box{border:1px solid #ddd5ca;border-radius:12px;padding:12px}
-.swatch{height:78px;border:1px solid #aaa;border-radius:9px;margin:8px 0}
-select,input[type=text]{width:100%;padding:9px;border:1px solid #c9c0b5;border-radius:8px;background:#fff;color:#2e2925}
-button{padding:10px 13px;border:1px solid #aaa096;border-radius:8px;background:#2e2925;color:#fff;cursor:pointer}
+.swatch{height:84px;border:1px solid #aaa;border-radius:9px;margin:8px 0}
+select,input[type=text]{width:100%;padding:10px;border:1px solid #c9c0b5;border-radius:8px;background:#fff;color:#2e2925;font-size:16px}
+button{padding:10px 13px;border:1px solid #aaa096;border-radius:8px;background:#2e2925;color:#fff;cursor:pointer;font-size:15px}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .good{font-weight:700}.error{color:#9b1c1c;font-weight:700}
+.big{font-weight:750;font-size:18px}
 table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}
+.dot{display:inline-block;width:20px;height:20px;border-radius:4px;border:1px solid #999;vertical-align:middle;margin-right:5px}
 </style>
 </head>
 <body>
 <main>
 <div class="card">
-<h1>Studio Pigment Mixer — Actual Mixbox Test</h1>
-<div class="muted">This page loads the official Mixbox JavaScript library from scrtwpns.com and uses <code>mixbox.lerp(..., 0.5)</code>. The displayed pigment HEX is exactly the value passed into Mixbox.</div>
+<h1>Studio Pigment Mixer — Named Primary Ladders</h1>
+<div class="muted">The exact HEX shown for each selected primary is the exact RGB value passed into Mixbox. No hidden mixing profile exists. Every result is also given a conventional nearest-color name.</div>
 <div id="engineStatus" style="margin-top:10px">Loading Mixbox…</div>
 </div>
 
 <div class="card">
-<h2>Choose one actual pigment for each primary slot</h2>
+<h2>Choose primary shades</h2>
 <div class="grid">
 <div class="box">
-<b>Red / Magenta slot</b>
+<b>Red / Magenta ladder</b>
 <select id="redSel"></select>
 <div id="redSw" class="swatch"></div>
 <div id="redInfo"></div>
 </div>
+
 <div class="box">
-<b>Yellow slot</b>
+<b>Yellow ladder</b>
 <select id="yellowSel"></select>
 <div id="yellowSw" class="swatch"></div>
 <div id="yellowInfo"></div>
 </div>
+
 <div class="box">
-<b>Blue slot</b>
+<b>Blue ladder</b>
 <select id="blueSel"></select>
 <div id="blueSw" class="swatch"></div>
 <div id="blueInfo"></div>
 </div>
 </div>
-<div style="margin-top:12px"><button onclick="testCurrent()">Test this trio 50/50</button></div>
+<div style="margin-top:12px"><button onclick="testCurrent()">Test selected trio 50/50</button></div>
 </div>
 
 <div class="card">
-<h2>50/50 results from Mixbox</h2>
+<h2>Named 50/50 results</h2>
 <div class="grid">
-<div class="box"><b>Red + Yellow → Orange candidate</b><div id="oSw" class="swatch"></div><div id="oInfo"></div></div>
-<div class="box"><b>Yellow + Blue → Green candidate</b><div id="gSw" class="swatch"></div><div id="gInfo"></div></div>
-<div class="box"><b>Blue + Red → Purple candidate</b><div id="pSw" class="swatch"></div><div id="pInfo"></div></div>
+<div class="box"><b>Red + Yellow</b><div id="oSw" class="swatch"></div><div id="oInfo"></div></div>
+<div class="box"><b>Yellow + Blue</b><div id="gSw" class="swatch"></div><div id="gInfo"></div></div>
+<div class="box"><b>Blue + Red</b><div id="pSw" class="swatch"></div><div id="pInfo"></div></div>
 </div>
 </div>
 
 <div class="card">
-<h2>Systematic candidate sweep</h2>
-<div class="muted">Tests every Red/Magenta × Yellow × Blue combination below through the same Mixbox call. Nothing is substituted by pair.</div>
+<h2>Systematic sweep</h2>
+<div class="muted">Tests every ladder combination through the same <code>mixbox.lerp(..., 0.5)</code> call. Sort is only a rough aid; names, HEXes and swatches remain visible for human judgment.</div>
 <div style="margin:12px 0"><button onclick="runSweep()">Run all combinations</button></div>
-<div style="overflow:auto"><table>
-<thead><tr><th>Red/Magenta</th><th>Yellow</th><th>Blue</th><th>Orange result</th><th>Green result</th><th>Purple result</th><th>Simple score</th></tr></thead>
+<div style="overflow:auto">
+<table>
+<thead><tr><th>Red/Magenta</th><th>Yellow</th><th>Blue</th><th>Red+Yellow</th><th>Yellow+Blue</th><th>Blue+Red</th><th>Score</th></tr></thead>
 <tbody id="sweepRows"></tbody>
-</table></div>
+</table>
+</div>
 </div>
 </main>
 
 <script src="https://scrtwpns.com/mixbox.js"></script>
 <script>
-// RGB values below are from the official Mixbox pigment table.
-const PIGMENTS = {
-  "Cadmium Yellow": "#FEEC00",
-  "Hansa Yellow": "#FCD300",
-  "Cadmium Orange": "#FF6900",
-  "Cadmium Red": "#FF2702",
-  "Quinacridone Magenta": "#80022E",
-  "Cobalt Violet": "#4E0042",
-  "Ultramarine Blue": "#190059",
-  "Cobalt Blue": "#002185",
-  "Phthalo Blue": "#0D1B44",
-  "Phthalo Green": "#003C32",
-  "Permanent Green": "#076D16",
-  "Sap Green": "#6B9404",
-  "Burnt Sienna": "#7B4800"
+/*
+  Candidate ladders.
+  Endpoints include documented Mixbox pigment colors.
+  Intermediate values are explicitly shown test candidates, not claimed pigment identities.
+*/
+const REDS = [
+  {label:"Cadmium Red", hex:"#FF2702"},
+  {label:"Warm Scarlet — test shade", hex:"#E9250D"},
+  {label:"Scarlet Red — test shade", hex:"#D32318"},
+  {label:"Crimson Red — test shade", hex:"#BD2123"},
+  {label:"Cool Crimson — test shade", hex:"#A71F2E"},
+  {label:"Magenta Red — test shade", hex:"#911D39"},
+  {label:"Quinacridone Magenta", hex:"#80022E"}
+];
+
+const YELLOWS = [
+  {label:"Cadmium Yellow", hex:"#FEEC00"},
+  {label:"Bright Yellow — test shade", hex:"#FDE200"},
+  {label:"Hansa Yellow", hex:"#FCD300"},
+  {label:"Golden Yellow — test shade", hex:"#EFC400"},
+  {label:"Warm Golden Yellow — test shade", hex:"#DFAF00"}
+];
+
+const BLUES = [
+  {label:"Ultramarine Blue", hex:"#190059"},
+  {label:"Violet Blue — test shade", hex:"#14086A"},
+  {label:"Deep Royal Blue — test shade", hex:"#0D1278"},
+  {label:"Cobalt Blue", hex:"#002185"},
+  {label:"Cool Cobalt — test shade", hex:"#053269"},
+  {label:"Blue-Teal — test shade", hex:"#0A4357"},
+  {label:"Phthalo Blue", hex:"#0D1B44"}
+];
+
+/* Conventional-name vocabulary: deliberately ordinary names, no novelty naming. */
+const NAMES = {
+  "Black":"#000000","White":"#FFFFFF","Red":"#FF0000","Dark Red":"#8B0000","Crimson":"#DC143C",
+  "Firebrick":"#B22222","Indian Red":"#CD5C5C","Tomato":"#FF6347","Orange Red":"#FF4500",
+  "Orange":"#FFA500","Dark Orange":"#FF8C00","Coral":"#FF7F50","Chocolate":"#D2691E",
+  "Peru":"#CD853F","Sienna":"#A0522D","Brown":"#A52A2A","Maroon":"#800000",
+  "Gold":"#FFD700","Goldenrod":"#DAA520","Dark Goldenrod":"#B8860B","Yellow":"#FFFF00",
+  "Khaki":"#F0E68C","Olive":"#808000","Yellow Green":"#9ACD32","Chartreuse":"#7FFF00",
+  "Lime":"#00FF00","Green":"#008000","Dark Green":"#006400","Forest Green":"#228B22",
+  "Sea Green":"#2E8B57","Medium Sea Green":"#3CB371","Emerald Green":"#00A550","Teal":"#008080",
+  "Cyan":"#00FFFF","Turquoise":"#40E0D0","Steel Blue":"#4682B4","Royal Blue":"#4169E1",
+  "Blue":"#0000FF","Medium Blue":"#0000CD","Navy":"#000080","Midnight Blue":"#191970",
+  "Slate Blue":"#6A5ACD","Dark Slate Blue":"#483D8B","Indigo":"#4B0082","Purple":"#800080",
+  "Deep Violet":"#4B0082","Dark Violet":"#9400D3","Dark Orchid":"#9932CC","Medium Purple":"#9370DB",
+  "Violet":"#EE82EE","Magenta":"#FF00FF","Deep Pink":"#FF1493","Hot Pink":"#FF69B4",
+  "Rosy Brown":"#BC8F8F","Slate Gray":"#708090","Dark Slate Gray":"#2F4F4F","Gray":"#808080"
 };
 
-const REDS = ["Cadmium Red","Quinacridone Magenta"];
-const YELLOWS = ["Cadmium Yellow","Hansa Yellow"];
-const BLUES = ["Ultramarine Blue","Cobalt Blue","Phthalo Blue"];
-
-function populate(id,names,selected){
-  const s=document.getElementById(id);
-  s.innerHTML=names.map(n=>`<option ${n===selected?"selected":""}>${n}</option>`).join("");
-  s.onchange=testCurrent;
+function populate(id,arr,selectedIndex){
+ const s=document.getElementById(id);
+ s.innerHTML=arr.map((x,i)=>`<option value="${i}" ${i===selectedIndex?"selected":""}>${x.label} — ${x.hex}</option>`).join("");
+ s.onchange=testCurrent;
 }
-populate("redSel",REDS,"Quinacridone Magenta");
-populate("yellowSel",YELLOWS,"Hansa Yellow");
-populate("blueSel",BLUES,"Phthalo Blue");
+populate("redSel",REDS,0);
+populate("yellowSel",YELLOWS,2);
+populate("blueSel",BLUES,3);
 
-function normalizeHex(h){return h.toUpperCase();}
 function hexRgb(h){
  h=h.replace("#","");
  return {r:parseInt(h.slice(0,2),16),g:parseInt(h.slice(2,4),16),b:parseInt(h.slice(4,6),16)};
@@ -118,15 +153,28 @@ function hexRgb(h){
 function rgbString(hex){const c=hexRgb(hex);return `rgb(${c.r}, ${c.g}, ${c.b})`;}
 function rgbStringToHex(s){
  const m=String(s).match(/(\d+(?:\.\d+)?)[^\d]+(\d+(?:\.\d+)?)[^\d]+(\d+(?:\.\d+)?)/);
- if(!m) return null;
- const a=[m[1],m[2],m[3]].map(v=>Math.max(0,Math.min(255,Math.round(Number(v)))));
- return "#"+a.map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();
+ if(!m)return null;
+ const vals=[m[1],m[2],m[3]].map(v=>Math.max(0,Math.min(255,Math.round(Number(v)))));
+ return "#"+vals.map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();
 }
 function mixHex(a,b){
  const out=mixbox.lerp(rgbString(a),rgbString(b),0.5);
  const hex=rgbStringToHex(out);
- if(!hex) throw new Error("Could not parse Mixbox output: "+out);
+ if(!hex)throw new Error("Could not parse Mixbox output: "+out);
  return hex;
+}
+function nearestName(hex){
+ const c=hexRgb(hex);
+ let best=null,bd=Infinity;
+ for(const [name,h] of Object.entries(NAMES)){
+   const x=hexRgb(h);
+   // perceptual-ish weighted RGB distance
+   const rmean=(c.r+x.r)/2;
+   const dr=c.r-x.r,dg=c.g-x.g,db=c.b-x.b;
+   const d=(2+rmean/256)*dr*dr + 4*dg*dg + (2+(255-rmean)/256)*db*db;
+   if(d<bd){bd=d;best=name}
+ }
+ return best;
 }
 function hsl(hex){
  let {r,g,b}=hexRgb(hex);r/=255;g/=255;b/=255;
@@ -144,56 +192,58 @@ function hsl(hex){
 function hueDistance(a,b){return Math.abs(((a-b+180)%360)-180);}
 function scoreSecondary(hex,targetHue){
  const x=hsl(hex);
- // High saturation is rewarded; hue error is penalized.
- return hueDistance(x.h,targetHue) + Math.max(0,60-x.s)*0.8;
+ return hueDistance(x.h,targetHue)+Math.max(0,55-x.s)*0.8;
 }
-function setPigment(prefix,name){
- const hex=PIGMENTS[name];
- document.getElementById(prefix+"Sw").style.background=hex;
- document.getElementById(prefix+"Info").innerHTML=`${name}<br><code>${hex}</code> — exact Mixbox input`;
+function current(arr,id){return arr[Number(document.getElementById(id).value)]}
+function showPrimary(prefix,p){
+ const n=nearestName(p.hex);
+ document.getElementById(prefix+"Sw").style.background=p.hex;
+ document.getElementById(prefix+"Info").innerHTML=
+   `<div class="big">${p.label}</div><div>${n}</div><code>${p.hex}</code><div class="muted">Exact Mixbox input</div>`;
 }
-function setResult(prefix,hex){
- const x=hsl(hex);
+function showResult(prefix,hex){
+ const n=nearestName(hex),x=hsl(hex);
  document.getElementById(prefix+"Sw").style.background=hex;
- document.getElementById(prefix+"Info").innerHTML=`<code>${hex}</code><br>H ${x.h.toFixed(1)}° · S ${x.s.toFixed(1)}% · L ${x.l.toFixed(1)}%`;
+ document.getElementById(prefix+"Info").innerHTML=
+   `<div class="big">${n}</div><code>${hex}</code><div class="muted">H ${x.h.toFixed(1)}° · S ${x.s.toFixed(1)}% · L ${x.l.toFixed(1)}%</div>`;
 }
 function testCurrent(){
- if(!window.mixbox){return}
- const r=document.getElementById("redSel").value;
- const y=document.getElementById("yellowSel").value;
- const b=document.getElementById("blueSel").value;
- setPigment("red",r);setPigment("yellow",y);setPigment("blue",b);
- setResult("o",mixHex(PIGMENTS[r],PIGMENTS[y]));
- setResult("g",mixHex(PIGMENTS[y],PIGMENTS[b]));
- setResult("p",mixHex(PIGMENTS[b],PIGMENTS[r]));
+ if(!window.mixbox)return;
+ const r=current(REDS,"redSel"),y=current(YELLOWS,"yellowSel"),b=current(BLUES,"blueSel");
+ showPrimary("red",r);showPrimary("yellow",y);showPrimary("blue",b);
+ showResult("o",mixHex(r.hex,y.hex));
+ showResult("g",mixHex(y.hex,b.hex));
+ showResult("p",mixHex(b.hex,r.hex));
+}
+function resultCell(hex){
+ return `<span class="dot" style="background:${hex}"></span><b>${nearestName(hex)}</b><br><code>${hex}</code>`;
 }
 function runSweep(){
  if(!window.mixbox)return;
  const rows=[];
  for(const r of REDS)for(const y of YELLOWS)for(const b of BLUES){
-   const o=mixHex(PIGMENTS[r],PIGMENTS[y]);
-   const g=mixHex(PIGMENTS[y],PIGMENTS[b]);
-   const p=mixHex(PIGMENTS[b],PIGMENTS[r]);
-   const score=scoreSecondary(o,32)+scoreSecondary(g,120)+scoreSecondary(p,285);
+   const o=mixHex(r.hex,y.hex),g=mixHex(y.hex,b.hex),p=mixHex(b.hex,r.hex);
+   const score=scoreSecondary(o,30)+scoreSecondary(g,120)+scoreSecondary(p,285);
    rows.push({r,y,b,o,g,p,score});
  }
  rows.sort((a,b)=>a.score-b.score);
  document.getElementById("sweepRows").innerHTML=rows.map(x=>
-   `<tr><td>${x.r}<br><code>${PIGMENTS[x.r]}</code></td>
-    <td>${x.y}<br><code>${PIGMENTS[x.y]}</code></td>
-    <td>${x.b}<br><code>${PIGMENTS[x.b]}</code></td>
-    <td><span style="display:inline-block;width:18px;height:18px;background:${x.o};border:1px solid #999;vertical-align:middle"></span> <code>${x.o}</code></td>
-    <td><span style="display:inline-block;width:18px;height:18px;background:${x.g};border:1px solid #999;vertical-align:middle"></span> <code>${x.g}</code></td>
-    <td><span style="display:inline-block;width:18px;height:18px;background:${x.p};border:1px solid #999;vertical-align:middle"></span> <code>${x.p}</code></td>
-    <td>${x.score.toFixed(1)}</td></tr>`).join("");
+   `<tr>
+   <td>${x.r.label}<br><code>${x.r.hex}</code></td>
+   <td>${x.y.label}<br><code>${x.y.hex}</code></td>
+   <td>${x.b.label}<br><code>${x.b.hex}</code></td>
+   <td>${resultCell(x.o)}</td>
+   <td>${resultCell(x.g)}</td>
+   <td>${resultCell(x.p)}</td>
+   <td>${x.score.toFixed(1)}</td>
+   </tr>`).join("");
 }
 window.addEventListener("load",()=>{
  if(window.mixbox){
    document.getElementById("engineStatus").innerHTML='<span class="good">✓ Official Mixbox loaded.</span>';
-   testCurrent();
-   runSweep();
+   testCurrent(); runSweep();
  }else{
-   document.getElementById("engineStatus").innerHTML='<span class="error">Mixbox did not load. This test requires internet access to scrtwpns.com/mixbox.js.</span>';
+   document.getElementById("engineStatus").innerHTML='<span class="error">Mixbox did not load. Internet access to scrtwpns.com/mixbox.js is required.</span>';
  }
 });
 </script>

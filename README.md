@@ -1,39 +1,48 @@
-# Studio Pigment Mixer — Actual Mixbox Primary Test
+# Studio Pigment Mixer — Named Primary Ladders
 
-This is an evaluation/test harness around the official Mixbox JavaScript library.
+This test build expands all three primary slots with intermediate candidate shades.
 
-The page loads:
-https://scrtwpns.com/mixbox.js
+Important:
+- The exact HEX displayed for each selected primary is the exact RGB value passed into Mixbox.
+- There is no hidden display color or hidden mixing profile.
+- Mix results are named using a local conventional color-name vocabulary.
+- Intermediate shades are clearly labeled as test shades; they are not falsely claimed to be named physical pigments.
+- Official Mixbox pigment endpoints are retained where used.
 
-It uses Mixbox exactly through:
+Primary ladders:
+Red/Magenta:
+- Cadmium Red #FF2702
+- #E9250D
+- #D32318
+- #BD2123
+- #A71F2E
+- #911D39
+- Quinacridone Magenta #80022E
+
+Yellow:
+- Cadmium Yellow #FEEC00
+- #FDE200
+- Hansa Yellow #FCD300
+- #EFC400
+- #DFAF00
+
+Blue:
+- Ultramarine Blue #190059
+- #14086A
+- #0D1278
+- Cobalt Blue #002185
+- #053269
+- #0A4357
+- Phthalo Blue #0D1B44
+
+Every selected trio is mixed using:
 mixbox.lerp(colorA, colorB, 0.5)
 
-Displayed pigment HEX values are the exact RGB inputs sent to Mixbox. There are no hidden input profiles and no pair-specific replacement values.
+The systematic sweep tests all:
+7 × 5 × 7 = 245 primary trios.
 
-Pigment RGB values included in the selector are copied from the official Mixbox pigment table:
-- Cadmium Yellow #FEEC00
-- Hansa Yellow #FCD300
-- Cadmium Orange #FF6900
-- Cadmium Red #FF2702
-- Quinacridone Magenta #80022E
-- Cobalt Violet #4E0042
-- Ultramarine Blue #190059
-- Cobalt Blue #002185
-- Phthalo Blue #0D1B44
-- Phthalo Green #003C32
-- Permanent Green #076D16
-- Sap Green #6B9404
-- Burnt Sienna #7B4800
-
-The systematic sweep tests:
-2 Red/Magenta choices × 2 Yellow choices × 3 Blue choices = 12 primary trios.
-
-For each trio it calculates:
-- Red/Magenta + Yellow
-- Yellow + Blue
-- Blue + Red/Magenta
-
-The score is only a rough sorting aid based on secondary hue and saturation. The actual HEX swatches/results remain visible for human judgment.
-
-Licensing note:
-Mixbox's site states that evaluation is available under CC BY-NC 4.0 and that commercial use requires a commercial license.
+Each resulting Red+Yellow, Yellow+Blue, and Blue+Red mix displays:
+- swatch
+- conventional nearest color name
+- exact HEX
+- HSL on the selected-trio cards
