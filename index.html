@@ -2,381 +2,200 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only">
-<title>Studio Pigment Mixer</title>
+<title>Studio Pigment Mixer — Mixbox Primary Test</title>
 <style>
-:root{
-  --bg:#f4f1ea;--panel:#fff;--text:#3a3530;--muted:#7c7267;--border:#e2ded4;
-  --lb:#b58d63;--bb:#785231;--db:#422d1b;
-  --lg:#8fa882;--bg2:#526646;--dg:#2d3b26;
-  --lgr:#b0b5b2;--bgr:#6e7370;--dgr:#353836;
-  --red:#d32f2f;--blue:#1976d2;--yellow:#fbc02d;--white:#fff;--black:#1a1a1a;
-}
-html{color-scheme:light only;background:#f4f1ea;}
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-body{color-scheme:light only;background:var(--bg);color:var(--text);padding:20px;display:flex;justify-content:center;min-height:100vh}
-.container{width:100%;max-width:1100px;display:grid;grid-template-columns:1fr;gap:20px}
-@media(min-width:768px){.container{grid-template-columns:1fr 1fr}.full{grid-column:span 2}}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(58,53,48,.05)}
-h1{font-size:1.8rem;margin-bottom:8px}h2{font-size:1.3rem;margin-bottom:16px;border-bottom:2px solid var(--bg);padding-bottom:8px}
-.subtitle{color:var(--muted);margin-bottom:20px;font-size:.95rem;line-height:1.4}
-.pigment-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
-.pigment-btn{display:flex;flex-direction:column;align-items:center;background:none;border:2px solid var(--border);border-radius:8px;padding:12px 4px;cursor:pointer}
-.dot{width:32px;height:32px;border-radius:50%;margin-bottom:8px;box-shadow:inset 0 2px 4px rgba(0,0,0,.15)}
-.label{font-size:.8rem;font-weight:600}.count{font-size:.85rem;color:var(--muted);margin-top:4px;background:var(--bg);padding:2px 8px;border-radius:10px}
-.action{display:flex;gap:10px;margin-bottom:24px}.btn{flex:1;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-weight:600;cursor:pointer}
-.preview{display:flex;align-items:center;gap:20px;background:var(--bg);padding:16px;border-radius:8px;margin-top:16px}
-.swatch{width:70px;height:70px;border-radius:10px;border:1px solid rgba(0,0,0,.1)}
-.title{font-weight:700;font-size:1.1rem;margin-bottom:4px}.stats{font-family:monospace;font-size:.85rem;color:var(--muted)}
-.bucket-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.bucket{border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;position:relative}
-.bucket.active{border-color:#3a3530;transform:scale(1.05);box-shadow:0 10px 20px rgba(58,53,48,.15)}
-.bucket.active::after{content:"MATCH";position:absolute;top:-10px;right:-10px;background:#3a3530;color:#fff;font-size:.65rem;font-weight:800;padding:3px 6px;border-radius:4px}
-.bucket-swatch{width:100%;height:50px;border-radius:6px;margin-bottom:8px}
-.bucket-name{font-size:.8rem;font-weight:700}
-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.9rem}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}th{background:var(--bg)}
-code{background:var(--bg);padding:2px 6px;border-radius:4px}
+html{color-scheme:light only;background:#f5f1e9}
+*{box-sizing:border-box}
+body{margin:0;padding:18px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f1e9;color:#2e2925}
+main{max-width:1080px;margin:auto}
+.card{background:#fff;border:1px solid #d9d1c6;border-radius:14px;padding:16px;margin-bottom:16px}
+h1{margin:0 0 6px;font-size:24px}h2{font-size:18px;margin:0 0 12px}
+.muted{color:#756d65;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.box{border:1px solid #ddd5ca;border-radius:12px;padding:12px}
+.swatch{height:78px;border:1px solid #aaa;border-radius:9px;margin:8px 0}
+select,input[type=text]{width:100%;padding:9px;border:1px solid #c9c0b5;border-radius:8px;background:#fff;color:#2e2925}
+button{padding:10px 13px;border:1px solid #aaa096;border-radius:8px;background:#2e2925;color:#fff;cursor:pointer}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.good{font-weight:700}.error{color:#9b1c1c;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="panel full">
-    <h1>Studio Pigment Mixer Prototype</h1>
-    <p class="subtitle">Standalone test harness for MASHPEDITION Studio pigment mixing. Pigments are mixed through one shared calibrated RYB pigment model, then matched to conventional color names; the earthy classifier remains available for complex muddy mixtures.</p>
-  </div>
-
-  <div class="panel">
-    <h2>1. Pigment Mixer</h2>
-    <p class="subtitle">Click Pigments to add drops to the current mixture.</p>
-    <div class="pigment-grid">
-      <button class="pigment-btn" onclick="addPigment('red')"><div class="dot" style="background:var(--red)"></div><span class="label">Red</span><span class="count" id="count-red">0</span></button>
-      <button class="pigment-btn" onclick="addPigment('blue')"><div class="dot" style="background:var(--blue)"></div><span class="label">Blue</span><span class="count" id="count-blue">0</span></button>
-      <button class="pigment-btn" onclick="addPigment('yellow')"><div class="dot" style="background:var(--yellow)"></div><span class="label">Yellow</span><span class="count" id="count-yellow">0</span></button>
-      <button class="pigment-btn" onclick="addPigment('white')"><div class="dot" style="background:var(--white);border:1px solid var(--border)"></div><span class="label">White</span><span class="count" id="count-white">0</span></button>
-      <button class="pigment-btn" onclick="addPigment('black')"><div class="dot" style="background:var(--black)"></div><span class="label">Black</span><span class="count" id="count-black">0</span></button>
-    </div>
-    <div class="action"><button class="btn" onclick="resetMixer()">Clear Mixer</button></div>
-    <h2>Current Mixture</h2>
-    <div class="preview">
-      <div class="swatch" id="mixed-swatch" style="background:#fff"></div>
-      <div>
-        <div class="title" id="classification-text">Empty Mixer (White)</div>
-        <div class="stats" id="mix-stats">RGB: (255, 255, 255)<br>HSL: (0°, 0%, 100%)</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h2>2. Earthy Classification Test</h2>
-    <p class="subtitle">Experimental naming for muddy mixtures that become hard to name conventionally.</p>
-    <div class="bucket-grid">
-      <div class="bucket" id="bucket-light-brown"><div class="bucket-swatch" style="background:var(--lb)"></div><div class="bucket-name">Light Earthy Brown</div></div>
-      <div class="bucket" id="bucket-base-brown"><div class="bucket-swatch" style="background:var(--bb)"></div><div class="bucket-name">Earthy Brown</div></div>
-      <div class="bucket" id="bucket-dark-brown"><div class="bucket-swatch" style="background:var(--db)"></div><div class="bucket-name">Dark Earthy Brown</div></div>
-      <div class="bucket" id="bucket-light-green"><div class="bucket-swatch" style="background:var(--lg)"></div><div class="bucket-name">Light Earthy Green</div></div>
-      <div class="bucket" id="bucket-base-green"><div class="bucket-swatch" style="background:var(--bg2)"></div><div class="bucket-name">Earthy Green</div></div>
-      <div class="bucket" id="bucket-dark-green"><div class="bucket-swatch" style="background:var(--dg)"></div><div class="bucket-name">Dark Earthy Green</div></div>
-      <div class="bucket" id="bucket-light-grey"><div class="bucket-swatch" style="background:var(--lgr)"></div><div class="bucket-name">Light Earthy Grey</div></div>
-      <div class="bucket" id="bucket-base-grey"><div class="bucket-swatch" style="background:var(--bgr)"></div><div class="bucket-name">Earthy Grey</div></div>
-      <div class="bucket" id="bucket-dark-grey"><div class="bucket-swatch" style="background:var(--dgr)"></div><div class="bucket-name">Dark Earthy Grey</div></div>
-    </div>
-  </div>
-
-  <div class="panel full">
-    <h2>3. Current Prototype Thresholds</h2>
-    <p class="subtitle">These thresholds are experimental and can be replaced as the actual Pigment system is calibrated.</p>
-    <table>
-      <thead><tr><th>Group</th><th>Rule</th><th>Light</th><th>Base</th><th>Dark</th></tr></thead>
-      <tbody>
-        <tr><td>Earthy Greys</td><td><code>Saturation &lt; 14%</code></td><td>Light Earthy Grey</td><td>Earthy Grey</td><td>Dark Earthy Grey</td></tr>
-        <tr><td>Earthy Greens</td><td><code>Hue 48°–165°</code></td><td>Light Earthy Green</td><td>Earthy Green</td><td>Dark Earthy Green</td></tr>
-        <tr><td>Earthy Browns</td><td>Fallback muddy hues</td><td>Light Earthy Brown</td><td>Earthy Brown</td><td>Dark Earthy Brown</td></tr>
-      </tbody>
-    </table>
-  </div>
+<main>
+<div class="card">
+<h1>Studio Pigment Mixer — Actual Mixbox Test</h1>
+<div class="muted">This page loads the official Mixbox JavaScript library from scrtwpns.com and uses <code>mixbox.lerp(..., 0.5)</code>. The displayed pigment HEX is exactly the value passed into Mixbox.</div>
+<div id="engineStatus" style="margin-top:10px">Loading Mixbox…</div>
 </div>
+
+<div class="card">
+<h2>Choose one actual pigment for each primary slot</h2>
+<div class="grid">
+<div class="box">
+<b>Red / Magenta slot</b>
+<select id="redSel"></select>
+<div id="redSw" class="swatch"></div>
+<div id="redInfo"></div>
+</div>
+<div class="box">
+<b>Yellow slot</b>
+<select id="yellowSel"></select>
+<div id="yellowSw" class="swatch"></div>
+<div id="yellowInfo"></div>
+</div>
+<div class="box">
+<b>Blue slot</b>
+<select id="blueSel"></select>
+<div id="blueSw" class="swatch"></div>
+<div id="blueInfo"></div>
+</div>
+</div>
+<div style="margin-top:12px"><button onclick="testCurrent()">Test this trio 50/50</button></div>
+</div>
+
+<div class="card">
+<h2>50/50 results from Mixbox</h2>
+<div class="grid">
+<div class="box"><b>Red + Yellow → Orange candidate</b><div id="oSw" class="swatch"></div><div id="oInfo"></div></div>
+<div class="box"><b>Yellow + Blue → Green candidate</b><div id="gSw" class="swatch"></div><div id="gInfo"></div></div>
+<div class="box"><b>Blue + Red → Purple candidate</b><div id="pSw" class="swatch"></div><div id="pInfo"></div></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Systematic candidate sweep</h2>
+<div class="muted">Tests every Red/Magenta × Yellow × Blue combination below through the same Mixbox call. Nothing is substituted by pair.</div>
+<div style="margin:12px 0"><button onclick="runSweep()">Run all combinations</button></div>
+<div style="overflow:auto"><table>
+<thead><tr><th>Red/Magenta</th><th>Yellow</th><th>Blue</th><th>Orange result</th><th>Green result</th><th>Purple result</th><th>Simple score</th></tr></thead>
+<tbody id="sweepRows"></tbody>
+</table></div>
+</div>
+</main>
+
+<script src="https://scrtwpns.com/mixbox.js"></script>
 <script>
-const mix={red:0,blue:0,yellow:0,white:0,black:0};
-const pigments={
-  red:{visibleHex:"#FF0000",mixingHex:"#DE610F"},
-  blue:{visibleHex:"#0000FF",mixingHex:"#0B00F1"},
-  yellow:{visibleHex:"#FFFF00",mixingHex:"#F1FF00"},
-  white:{visibleHex:"#FFFFFF",mixingHex:"#FFFFFF"},
-  black:{visibleHex:"#000000",mixingHex:"#000000"}
+// RGB values below are from the official Mixbox pigment table.
+const PIGMENTS = {
+  "Cadmium Yellow": "#FEEC00",
+  "Hansa Yellow": "#FCD300",
+  "Cadmium Orange": "#FF6900",
+  "Cadmium Red": "#FF2702",
+  "Quinacridone Magenta": "#80022E",
+  "Cobalt Violet": "#4E0042",
+  "Ultramarine Blue": "#190059",
+  "Cobalt Blue": "#002185",
+  "Phthalo Blue": "#0D1B44",
+  "Phthalo Green": "#003C32",
+  "Permanent Green": "#076D16",
+  "Sap Green": "#6B9404",
+  "Burnt Sienna": "#7B4800"
 };
 
-function addPigment(color){
-  mix[color]++;
-  document.getElementById(`count-${color}`).innerText=mix[color];
-  calculateMix();
+const REDS = ["Cadmium Red","Quinacridone Magenta"];
+const YELLOWS = ["Cadmium Yellow","Hansa Yellow"];
+const BLUES = ["Ultramarine Blue","Cobalt Blue","Phthalo Blue"];
+
+function populate(id,names,selected){
+  const s=document.getElementById(id);
+  s.innerHTML=names.map(n=>`<option ${n===selected?"selected":""}>${n}</option>`).join("");
+  s.onchange=testCurrent;
 }
+populate("redSel",REDS,"Quinacridone Magenta");
+populate("yellowSel",YELLOWS,"Hansa Yellow");
+populate("blueSel",BLUES,"Phthalo Blue");
 
-function resetMixer(){
-  for(const key in mix){
-    mix[key]=0;
-    document.getElementById(`count-${key}`).innerText=0;
-  }
-  calculateMix();
+function normalizeHex(h){return h.toUpperCase();}
+function hexRgb(h){
+ h=h.replace("#","");
+ return {r:parseInt(h.slice(0,2),16),g:parseInt(h.slice(2,4),16),b:parseInt(h.slice(4,6),16)};
 }
-
-/*
-  Shared-primary calibrated RYB mixer.
-
-  Visible jars:
-    Red #FF0000, Yellow #FFFF00, Blue #0000FF
-
-  Shared hidden mixing profiles:
-    Red #DE610F, Yellow #F1FF00, Blue #0B00F1
-
-  The same hidden primary is used regardless of its partner.
-  Every mixture follows the same RGB -> RYB -> weighted-average -> RGB transform.
-*/
-
-function rgbObjectToRyb({r,g,b}){
-  r/=255; g/=255; b/=255;
-  const white=Math.min(r,g,b);
-  r-=white; g-=white; b-=white;
-
-  const maxGreen=Math.max(r,g,b);
-  let y=Math.min(r,g);
-  r-=y;
-  g-=y;
-
-  if(b>0 && g>0){
-    b/=2;
-    g/=2;
-  }
-
-  y+=g;
-  b+=g;
-
-  const maxYellow=Math.max(r,y,b);
-  if(maxYellow>0){
-    const scale=maxGreen/maxYellow;
-    r*=scale; y*=scale; b*=scale;
-  }
-
-  return {r:r+white,y:y+white,b:b+white};
+function rgbString(hex){const c=hexRgb(hex);return `rgb(${c.r}, ${c.g}, ${c.b})`;}
+function rgbStringToHex(s){
+ const m=String(s).match(/(\d+(?:\.\d+)?)[^\d]+(\d+(?:\.\d+)?)[^\d]+(\d+(?:\.\d+)?)/);
+ if(!m) return null;
+ const a=[m[1],m[2],m[3]].map(v=>Math.max(0,Math.min(255,Math.round(Number(v)))));
+ return "#"+a.map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();
 }
-
-function rybToRgbObject({r,y,b}){
-  const white=Math.min(r,y,b);
-  r-=white; y-=white; b-=white;
-
-  const maxYellow=Math.max(r,y,b);
-  let g=Math.min(y,b);
-  y-=g;
-  b-=g;
-
-  if(b>0 && g>0){
-    b*=2;
-    g*=2;
-  }
-
-  r+=y;
-  g+=y;
-
-  const maxGreen=Math.max(r,g,b);
-  if(maxGreen>0){
-    const scale=maxYellow/maxGreen;
-    r*=scale; g*=scale; b*=scale;
-  }
-
-  return {
-    r:Math.round(Math.max(0,Math.min(1,r+white))*255),
-    g:Math.round(Math.max(0,Math.min(1,g+white))*255),
-    b:Math.round(Math.max(0,Math.min(1,b+white))*255)
-  };
+function mixHex(a,b){
+ const out=mixbox.lerp(rgbString(a),rgbString(b),0.5);
+ const hex=rgbStringToHex(out);
+ if(!hex) throw new Error("Could not parse Mixbox output: "+out);
+ return hex;
 }
-
-function buildPigmentState(key){
-  return {
-    ryb:rgbObjectToRyb(hexToRgb(pigments[key].mixingHex)),
-    parts:1
-  };
+function hsl(hex){
+ let {r,g,b}=hexRgb(hex);r/=255;g/=255;b/=255;
+ const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;
+ let h=0,l=(max+min)/2,s=0;
+ if(d){
+   s=d/(1-Math.abs(2*l-1));
+   if(max===r)h=60*(((g-b)/d)%6);
+   else if(max===g)h=60*((b-r)/d+2);
+   else h=60*((r-g)/d+4);
+   if(h<0)h+=360;
+ }
+ return {h,s:s*100,l:l*100};
 }
-
-function mixPigmentStates(entries){
-  const active=entries.filter(entry=>entry.amount>0);
-  if(active.length===0){
-    return {ryb:rgbObjectToRyb({r:255,g:255,b:255}),parts:0};
-  }
-
-  let totalParts=0;
-  const sum={r:0,y:0,b:0};
-
-  for(const entry of active){
-    const state=entry.state || buildPigmentState(entry.key);
-    const weightedParts=state.parts*entry.amount;
-    totalParts+=weightedParts;
-    sum.r+=state.ryb.r*weightedParts;
-    sum.y+=state.ryb.y*weightedParts;
-    sum.b+=state.ryb.b*weightedParts;
-  }
-
-  return {
-    ryb:{
-      r:sum.r/totalParts,
-      y:sum.y/totalParts,
-      b:sum.b/totalParts
-    },
-    parts:totalParts
-  };
+function hueDistance(a,b){return Math.abs(((a-b+180)%360)-180);}
+function scoreSecondary(hex,targetHue){
+ const x=hsl(hex);
+ // High saturation is rewarded; hue error is penalized.
+ return hueDistance(x.h,targetHue) + Math.max(0,60-x.s)*0.8;
 }
-
-function createMixedPigmentState(entries){
-  return mixPigmentStates(entries);
+function setPigment(prefix,name){
+ const hex=PIGMENTS[name];
+ document.getElementById(prefix+"Sw").style.background=hex;
+ document.getElementById(prefix+"Info").innerHTML=`${name}<br><code>${hex}</code> — exact Mixbox input`;
 }
-
-function calculateMix(){
-  const total=Object.values(mix).reduce((a,b)=>a+b,0);
-  const title=document.getElementById("classification-text");
-
-  if(total===0){
-    document.getElementById("mixed-swatch").style.backgroundColor="#FFFFFF";
-    document.getElementById("mix-stats").innerHTML=
-      "HEX: #FFFFFF<br>RGB: (255, 255, 255)<br>HSL: (0°, 0%, 100%)";
-    title.innerText="White — #FFFFFF";
-    classify(0,{h:0,s:0,l:100});
-    return;
-  }
-
-  const state=mixPigmentStates(
-    Object.keys(mix).map(key=>({key,amount:mix[key]}))
-  );
-  const {r,g,b}=rybToRgbObject(state.ryb);
-  const hex=rgbToHex(r,g,b);
-
-  document.getElementById("mixed-swatch").style.backgroundColor=`#${hex}`;
-  const hsl=rgbToHsl(r,g,b);
-  document.getElementById("mix-stats").innerHTML=
-    `HEX: #${hex}<br>RGB: (${r}, ${g}, ${b})<br>HSL: (${hsl.h}°, ${hsl.s}%, ${hsl.l}%)`;
-
-  const activeKeys=Object.keys(mix).filter(k=>mix[k]>0);
-  let colorName=null;
-
-  if(activeKeys.length===1){
-    colorName={
-      red:"Red",
-      blue:"Blue",
-      yellow:"Yellow",
-      white:"White",
-      black:"Black"
-    }[activeKeys[0]];
-  }
-
-  if(!colorName) colorName=getColorName(hex);
-
-  const earthyName=classify(total,hsl);
-  title.innerText=`${colorName || earthyName || "Unnamed Mix"} — #${hex}`;
+function setResult(prefix,hex){
+ const x=hsl(hex);
+ document.getElementById(prefix+"Sw").style.background=hex;
+ document.getElementById(prefix+"Info").innerHTML=`<code>${hex}</code><br>H ${x.h.toFixed(1)}° · S ${x.s.toFixed(1)}% · L ${x.l.toFixed(1)}%`;
 }
-
-function rgbToHex(r,g,b){
-  return [r,g,b]
-    .map(v=>Math.max(0,Math.min(255,v)).toString(16).padStart(2,"0"))
-    .join("")
-    .toUpperCase();
+function testCurrent(){
+ if(!window.mixbox){return}
+ const r=document.getElementById("redSel").value;
+ const y=document.getElementById("yellowSel").value;
+ const b=document.getElementById("blueSel").value;
+ setPigment("red",r);setPigment("yellow",y);setPigment("blue",b);
+ setResult("o",mixHex(PIGMENTS[r],PIGMENTS[y]));
+ setResult("g",mixHex(PIGMENTS[y],PIGMENTS[b]));
+ setResult("p",mixHex(PIGMENTS[b],PIGMENTS[r]));
 }
-
-const CONVENTIONAL_COLORS = {"aliceblue":"#F0F8FF","antiquewhite":"#FAEBD7","aqua":"#00FFFF","aquamarine":"#7FFFD4","azure":"#F0FFFF","beige":"#F5F5DC","bisque":"#FFE4C4","black":"#000000","blanchedalmond":"#FFEBCD","blue":"#0000FF","blueviolet":"#8A2BE2","brown":"#A52A2A","burlywood":"#DEB887","cadetblue":"#5F9EA0","chartreuse":"#7FFF00","chocolate":"#D2691E","coral":"#FF7F50","cornflowerblue":"#6495ED","cornsilk":"#FFF8DC","crimson":"#DC143C","cyan":"#00FFFF","darkblue":"#00008B","darkcyan":"#008B8B","darkgoldenrod":"#B8860B","darkgray":"#A9A9A9","darkgreen":"#006400","darkgrey":"#A9A9A9","darkkhaki":"#BDB76B","darkmagenta":"#8B008B","darkolivegreen":"#556B2F","darkorange":"#FF8C00","darkorchid":"#9932CC","darkred":"#8B0000","darksalmon":"#E9967A","darkseagreen":"#8FBC8F","darkslateblue":"#483D8B","darkslategray":"#2F4F4F","darkslategrey":"#2F4F4F","darkturquoise":"#00CED1","darkviolet":"#9400D3","deeppink":"#FF1493","deepskyblue":"#00BFFF","dimgray":"#696969","dimgrey":"#696969","dodgerblue":"#1E90FF","firebrick":"#B22222","floralwhite":"#FFFAF0","forestgreen":"#228B22","fuchsia":"#FF00FF","gainsboro":"#DCDCDC","ghostwhite":"#F8F8FF","gold":"#FFD700","goldenrod":"#DAA520","gray":"#808080","green":"#008000","greenyellow":"#ADFF2F","grey":"#808080","honeydew":"#F0FFF0","hotpink":"#FF69B4","indianred":"#CD5C5C","indigo":"#4B0082","ivory":"#FFFFF0","khaki":"#F0E68C","lavender":"#E6E6FA","lavenderblush":"#FFF0F5","lawngreen":"#7CFC00","lemonchiffon":"#FFFACD","lightblue":"#ADD8E6","lightcoral":"#F08080","lightcyan":"#E0FFFF","lightgoldenrodyellow":"#FAFAD2","lightgray":"#D3D3D3","lightgreen":"#90EE90","lightgrey":"#D3D3D3","lightpink":"#FFB6C1","lightsalmon":"#FFA07A","lightseagreen":"#20B2AA","lightskyblue":"#87CEFA","lightslategray":"#778899","lightslategrey":"#778899","lightsteelblue":"#B0C4DE","lightyellow":"#FFFFE0","lime":"#00FF00","limegreen":"#32CD32","linen":"#FAF0E6","magenta":"#FF00FF","maroon":"#800000","mediumaquamarine":"#66CDAA","mediumblue":"#0000CD","mediumorchid":"#BA55D3","mediumpurple":"#9370DB","mediumseagreen":"#3CB371","mediumslateblue":"#7B68EE","mediumspringgreen":"#00FA9A","mediumturquoise":"#48D1CC","mediumvioletred":"#C71585","midnightblue":"#191970","mintcream":"#F5FFFA","mistyrose":"#FFE4E1","moccasin":"#FFE4B5","navajowhite":"#FFDEAD","navy":"#000080","oldlace":"#FDF5E6","olive":"#808000","olivedrab":"#6B8E23","orange":"#FFA500","orangered":"#FF4500","orchid":"#DA70D6","palegoldenrod":"#EEE8AA","palegreen":"#98FB98","paleturquoise":"#AFEEEE","palevioletred":"#DB7093","papayawhip":"#FFEFD5","peachpuff":"#FFDAB9","peru":"#CD853F","pink":"#FFC0CB","plum":"#DDA0DD","powderblue":"#B0E0E6","purple":"#800080","rebeccapurple":"#663399","red":"#FF0000","rosybrown":"#BC8F8F","royalblue":"#4169E1","saddlebrown":"#8B4513","salmon":"#FA8072","sandybrown":"#F4A460","seagreen":"#2E8B57","seashell":"#FFF5EE","sienna":"#A0522D","silver":"#C0C0C0","skyblue":"#87CEEB","slateblue":"#6A5ACD","slategray":"#708090","slategrey":"#708090","snow":"#FFFAFA","springgreen":"#00FF7F","steelblue":"#4682B4","tan":"#D2B48C","teal":"#008080","thistle":"#D8BFD8","tomato":"#FF6347","turquoise":"#40E0D0","violet":"#EE82EE","wheat":"#F5DEB3","white":"#FFFFFF","whitesmoke":"#F5F5F5","yellow":"#FFFF00","yellowgreen":"#9ACD32"};
-
-function hexToRgb(hex) {
-  const h = hex.replace('#','');
-  return {
-    r: parseInt(h.slice(0,2),16),
-    g: parseInt(h.slice(2,4),16),
-    b: parseInt(h.slice(4,6),16)
-  };
+function runSweep(){
+ if(!window.mixbox)return;
+ const rows=[];
+ for(const r of REDS)for(const y of YELLOWS)for(const b of BLUES){
+   const o=mixHex(PIGMENTS[r],PIGMENTS[y]);
+   const g=mixHex(PIGMENTS[y],PIGMENTS[b]);
+   const p=mixHex(PIGMENTS[b],PIGMENTS[r]);
+   const score=scoreSecondary(o,32)+scoreSecondary(g,120)+scoreSecondary(p,285);
+   rows.push({r,y,b,o,g,p,score});
+ }
+ rows.sort((a,b)=>a.score-b.score);
+ document.getElementById("sweepRows").innerHTML=rows.map(x=>
+   `<tr><td>${x.r}<br><code>${PIGMENTS[x.r]}</code></td>
+    <td>${x.y}<br><code>${PIGMENTS[x.y]}</code></td>
+    <td>${x.b}<br><code>${PIGMENTS[x.b]}</code></td>
+    <td><span style="display:inline-block;width:18px;height:18px;background:${x.o};border:1px solid #999;vertical-align:middle"></span> <code>${x.o}</code></td>
+    <td><span style="display:inline-block;width:18px;height:18px;background:${x.g};border:1px solid #999;vertical-align:middle"></span> <code>${x.g}</code></td>
+    <td><span style="display:inline-block;width:18px;height:18px;background:${x.p};border:1px solid #999;vertical-align:middle"></span> <code>${x.p}</code></td>
+    <td>${x.score.toFixed(1)}</td></tr>`).join("");
 }
-
-function srgbToLinear(v) {
-  v /= 255;
-  return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-}
-
-function rgbToLab(rgb) {
-  const r = srgbToLinear(rgb.r), g = srgbToLinear(rgb.g), b = srgbToLinear(rgb.b);
-  let x = (r*0.4124564 + g*0.3575761 + b*0.1804375) / 0.95047;
-  let y = (r*0.2126729 + g*0.7151522 + b*0.0721750);
-  let z = (r*0.0193339 + g*0.1191920 + b*0.9503041) / 1.08883;
-  const f = t => t > 0.008856 ? Math.cbrt(t) : (7.787*t + 16/116);
-  x=f(x); y=f(y); z=f(z);
-  return {L:116*y-16, a:500*(x-y), b:200*(y-z)};
-}
-
-function deltaE76(a,b) {
-  return Math.hypot(a.L-b.L, a.a-b.a, a.b-b.b);
-}
-
-const CONVENTIONAL_LAB = Object.entries(CONVENTIONAL_COLORS).map(([name,hex]) => ({
-  name, hex, lab: rgbToLab(hexToRgb(hex))
-}));
-
-function titleColorName(name) {
-  return name.replace(/([a-z])([A-Z])/g, '$1 $2')
-             .replace(/gray/gi, 'grey')
-             .replace(/\b\w/g, c => c.toUpperCase());
-}
-
-function getColorName(hex) {
-  const target = rgbToLab(hexToRgb(hex));
-  let best = null;
-  let bestDistance = Infinity;
-  for (const entry of CONVENTIONAL_LAB) {
-    const d = deltaE76(target, entry.lab);
-    if (d < bestDistance) {
-      bestDistance = d;
-      best = entry;
-    }
-  }
-  return best ? titleColorName(best.name) : null;
-}
-
-function rgbToHsl(r,g,b){
-  r/=255;g/=255;b/=255;
-  const max=Math.max(r,g,b),min=Math.min(r,g,b);
-  let h=0,s=0,l=(max+min)/2;
-  if(max!==min){
-    const d=max-min;
-    s=l>.5?d/(2-max-min):d/(max+min);
-    switch(max){
-      case r:h=(g-b)/d+(g<b?6:0);break;
-      case g:h=(b-r)/d+2;break;
-      default:h=(r-g)/d+4;
-    }
-    h/=6;
-  }
-  return {h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};
-}
-
-function classify(total,hsl){
-  document.querySelectorAll(".bucket").forEach(el=>el.classList.remove("active"));
-  if(total===0){
-    return "White";
-  }
-
-  let category="brown";
-  if(hsl.s<14) category="grey";
-  else if(hsl.h>=48&&hsl.h<=165) category="green";
-
-  let shade="base";
-  if(hsl.l>52) shade="light";
-  else if(hsl.l<28) shade="dark";
-
-  const key=`${shade}-${category}`;
-  const names={
-    "light-grey":"Light Earthy Grey","base-grey":"Earthy Grey","dark-grey":"Dark Earthy Grey",
-    "light-green":"Light Earthy Green","base-green":"Earthy Green","dark-green":"Dark Earthy Green",
-    "light-brown":"Light Earthy Brown","base-brown":"Earthy Brown","dark-brown":"Dark Earthy Brown"
-  };
-
-  const card=document.getElementById(`bucket-${key}`);
-  if(card) card.classList.add("active");
-  return names[key];
-}
-
-calculateMix();
+window.addEventListener("load",()=>{
+ if(window.mixbox){
+   document.getElementById("engineStatus").innerHTML='<span class="good">✓ Official Mixbox loaded.</span>';
+   testCurrent();
+   runSweep();
+ }else{
+   document.getElementById("engineStatus").innerHTML='<span class="error">Mixbox did not load. This test requires internet access to scrtwpns.com/mixbox.js.</span>';
+ }
+});
 </script>
 </body>
 </html>
