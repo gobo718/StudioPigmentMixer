@@ -40,27 +40,27 @@ th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;vertical-align:to
 <div class="grid">
 <div class="box">
 <b>Red / Magenta ladder</b>
-<select id="redSel"></select>
+<select id="redSel"></select><label style="display:block;margin-top:10px">Red/Magenta HEX</label><input id="redHex" type="text" value="#BD2123" maxlength="7" spellcheck="false"><div class="muted">Editable pre-dilution Mixbox input.</div>
 <label style="display:block;margin-top:10px">White mixed into Red/Magenta: <b id="redWhiteVal">0%</b></label>
-<input id="redWhite" type="range" min="0" max="40" step="1" value="0" style="width:100%">
+<input id="redWhite" type="range" min="0" max="40" step="1" value="15" style="width:100%">
 <div id="redSw" class="swatch"></div>
 <div id="redInfo"></div>
 </div>
 
 <div class="box">
 <b>Yellow ladder</b>
-<select id="yellowSel"></select>
+<select id="yellowSel"></select><label style="display:block;margin-top:10px">Yellow HEX</label><input id="yellowHex" type="text" value="#FEEC00" maxlength="7" spellcheck="false"><div class="muted">Editable pre-dilution Mixbox input.</div>
 <label style="display:block;margin-top:10px">White mixed into Yellow: <b id="yellowWhiteVal">0%</b></label>
-<input id="yellowWhite" type="range" min="0" max="40" step="1" value="0" style="width:100%">
+<input id="yellowWhite" type="range" min="0" max="40" step="1" value="15" style="width:100%">
 <div id="yellowSw" class="swatch"></div>
 <div id="yellowInfo"></div>
 </div>
 
 <div class="box">
 <b>Blue ladder</b>
-<select id="blueSel"></select>
+<select id="blueSel"></select><label style="display:block;margin-top:10px">Blue HEX</label><input id="blueHex" type="text" value="#190059" maxlength="7" spellcheck="false"><div class="muted">Editable pre-dilution Mixbox input.</div>
 <label style="display:block;margin-top:10px">White mixed into Blue: <b id="blueWhiteVal">0%</b></label>
-<input id="blueWhite" type="range" min="0" max="40" step="1" value="0" style="width:100%">
+<input id="blueWhite" type="range" min="0" max="40" step="1" value="15" style="width:100%">
 <div id="blueSw" class="swatch"></div>
 <div id="blueInfo"></div>
 </div>
@@ -146,7 +146,11 @@ const NAMES = {
 function populate(id,arr,selectedIndex){
  const s=document.getElementById(id);
  s.innerHTML=arr.map((x,i)=>`<option value="${i}" ${i===selectedIndex?"selected":""}>${x.label} — ${x.hex}</option>`).join("");
- s.onchange=testCurrent;
+ s.onchange=()=>{
+ const maps={redSel:[REDS,"redHex"],yellowSel:[YELLOWS,"yellowHex"],blueSel:[BLUES,"blueHex"]};
+ if(maps[id])document.getElementById(maps[id][1]).value=maps[id][0][Number(s.value)].hex;
+ testCurrent();
+};
 }
 populate("redSel",REDS,0);
 populate("yellowSel",YELLOWS,2);
@@ -178,6 +182,11 @@ function mixWhite(hex,percent){
   return mixed;
 }
 
+function normalizeHexInput(value){
+ let h=String(value||"").trim().toUpperCase();
+ if(!h.startsWith("#"))h="#"+h;
+ return /^#[0-9A-F]{6}$/.test(h)?h:null;
+}
 function nearestName(hex){
  const c=hexRgb(hex);
  let best=null,bd=Infinity;
@@ -224,23 +233,23 @@ function showResult(prefix,hex){
 }
 function testCurrent(){
  if(!window.mixbox)return;
- const rBase=current(REDS,"redSel"),yBase=current(YELLOWS,"yellowSel"),bBase=current(BLUES,"blueSel");
+ const r0=normalizeHexInput(document.getElementById("redHex").value);
+ const y0=normalizeHexInput(document.getElementById("yellowHex").value);
+ const b0=normalizeHexInput(document.getElementById("blueHex").value);
+ if(!r0||!y0||!b0)return;
+
  const rw=Number(document.getElementById("redWhite").value);
  const yw=Number(document.getElementById("yellowWhite").value);
  const bw=Number(document.getElementById("blueWhite").value);
-
  document.getElementById("redWhiteVal").textContent=rw+"%";
  document.getElementById("yellowWhiteVal").textContent=yw+"%";
  document.getElementById("blueWhiteVal").textContent=bw+"%";
 
- const r={label:rw?`${rBase.label} + ${rw}% White`:rBase.label,hex:mixWhite(rBase.hex,rw)};
- const y={label:yw?`${yBase.label} + ${yw}% White`:yBase.label,hex:mixWhite(yBase.hex,yw)};
- const b={label:bw?`${bBase.label} + ${bw}% White`:bBase.label,hex:mixWhite(bBase.hex,bw)};
+ const r={label:`Custom Red/Magenta ${r0}${rw?` + ${rw}% White`:""}`,hex:mixWhite(r0,rw)};
+ const y={label:`Custom Yellow ${y0}${yw?` + ${yw}% White`:""}`,hex:mixWhite(y0,yw)};
+ const b={label:`Custom Blue ${b0}${bw?` + ${bw}% White`:""}`,hex:mixWhite(b0,bw)};
 
- showPrimary("red",r);
- showPrimary("yellow",y);
- showPrimary("blue",b);
-
+ showPrimary("red",r); showPrimary("yellow",y); showPrimary("blue",b);
  showResult("o",mixHex(r.hex,y.hex));
  showResult("g",mixHex(y.hex,b.hex));
  showResult("p",mixHex(b.hex,r.hex));
@@ -268,6 +277,9 @@ function runSweep(){
    <td>${x.score.toFixed(1)}</td>
    </tr>`).join("");
 }
+document.getElementById("redHex").oninput=testCurrent;
+document.getElementById("yellowHex").oninput=testCurrent;
+document.getElementById("blueHex").oninput=testCurrent;
 document.getElementById("redWhite").oninput=testCurrent;
 document.getElementById("yellowWhite").oninput=testCurrent;
 document.getElementById("blueWhite").oninput=testCurrent;

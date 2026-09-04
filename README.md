@@ -58,3 +58,6 @@ White dilution is performed through Mixbox itself:
 The resulting diluted pigment becomes the actual primary used in subsequent secondary mixing. Its resulting HEX, swatch, and conventional name are displayed directly.
 
 All three primaries can now be independently lightened before Orange, Green, and Purple are calculated.
+
+## Free HEX inputs
+Editable HEX fields were added for Red/Magenta, Yellow, and Blue. The dropdowns remain as presets. The exact entered HEX is fed into Mixbox, then optional White dilution is applied through Mixbox, then the resulting actual primaries are mixed 50/50. Defaults use the saved 15%/15%/15% benchmark starting point. No secondary outputs are forced.
