@@ -1,63 +1,35 @@
-# Studio Pigment Mixer — Named Primary Ladders
+# Studio Pigment Mixer — Pair-by-Pair Transition Auditor
 
-This test build expands all three primary slots with intermediate candidate shades.
+This is the next-step validator for the current Studio Pigment Mixer classifier.
+
+It uses the actual Mixbox JavaScript runtime and audits nine specific paths at 1% increments:
+
+Primary loops:
+- Red ↔ Yellow
+- Yellow ↔ Blue
+- Blue ↔ Red
+
+White dilution paths:
+- Red ↔ White
+- Yellow ↔ White
+- Blue ↔ White
+
+Black shade paths:
+- Red ↔ Black
+- Yellow ↔ Black
+- Blue ↔ Black
+
+For every 0:100 through 100:0 step it records:
+- exact Mixbox HEX
+- H / S / L
+- classifier type and name
+- unlock jar ID
+- every classification boundary crossing
+
+Current classifier order remains:
+Premium → Clean → Earthy
 
 Important:
-- The exact HEX displayed for each selected primary is the exact RGB value passed into Mixbox.
-- There is no hidden display color or hidden mixing profile.
-- Mix results are named using a local conventional color-name vocabulary.
-- Intermediate shades are clearly labeled as test shades; they are not falsely claimed to be named physical pigments.
-- Official Mixbox pigment endpoints are retained where used.
-
-Primary ladders:
-Red/Magenta:
-- Cadmium Red #FF2702
-- #E9250D
-- #D32318
-- #BD2123
-- #A71F2E
-- #911D39
-- Quinacridone Magenta #80022E
-
-Yellow:
-- Cadmium Yellow #FEEC00
-- #FDE200
-- Hansa Yellow #FCD300
-- #EFC400
-- #DFAF00
-
-Blue:
-- Ultramarine Blue #190059
-- #14086A
-- #0D1278
-- Cobalt Blue #002185
-- #053269
-- #0A4357
-- Phthalo Blue #0D1B44
-
-Every selected trio is mixed using:
-mixbox.lerp(colorA, colorB, 0.5)
-
-The systematic sweep tests all:
-7 × 5 × 7 = 245 primary trios.
-
-Each resulting Red+Yellow, Yellow+Blue, and Blue+Red mix displays:
-- swatch
-- conventional nearest color name
-- exact HEX
-- HSL on the selected-trio cards
-
-
-## White dilution controls
-
-Red/Magenta, Yellow, and Blue now each have an independent 0–40% White control.
-
-White dilution is performed through Mixbox itself:
-`mixbox.lerp(primary, white, dilutionAmount)`
-
-The resulting diluted pigment becomes the actual primary used in subsequent secondary mixing. Its resulting HEX, swatch, and conventional name are displayed directly.
-
-All three primaries can now be independently lightened before Orange, Green, and Purple are calculated.
-
-## Free HEX inputs
-Editable HEX fields were added for Red/Magenta, Yellow, and Blue. The dropdowns remain as presets. The exact entered HEX is fed into Mixbox, then optional White dilution is applied through Mixbox, then the resulting actual primaries are mixed 50/50. Defaults use the saved 15%/15%/15% benchmark starting point. No secondary outputs are forced.
+- No output color is forced, corrected, or hard-coded.
+- Mixbox remains the actual mixing engine.
+- This package is a validator, not a replacement for the main StudioPigmentMixer.

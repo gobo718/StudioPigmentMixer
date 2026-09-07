@@ -1,297 +1,234 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only">
-<title>Studio Pigment Mixer — Named Primary Ladders</title>
+<title>Studio Pigment Mixer — Transition Auditor</title>
 <style>
-html{color-scheme:light only;background:#f5f1e9}
-*{box-sizing:border-box}
-body{margin:0;padding:18px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f1e9;color:#2e2925}
-main{max-width:1120px;margin:auto}
-.card{background:#fff;border:1px solid #d9d1c6;border-radius:14px;padding:16px;margin-bottom:16px}
-h1{margin:0 0 6px;font-size:24px}h2{font-size:19px;margin:0 0 12px}
-.muted{color:#756d65;font-size:13px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-@media(max-width:760px){.grid{grid-template-columns:1fr}}
-.box{border:1px solid #ddd5ca;border-radius:12px;padding:12px}
-.swatch{height:84px;border:1px solid #aaa;border-radius:9px;margin:8px 0}
-select,input[type=text]{width:100%;padding:10px;border:1px solid #c9c0b5;border-radius:8px;background:#fff;color:#2e2925;font-size:16px}
-button{padding:10px 13px;border:1px solid #aaa096;border-radius:8px;background:#2e2925;color:#fff;cursor:pointer;font-size:15px}
-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-.good{font-weight:700}.error{color:#9b1c1c;font-weight:700}
-.big{font-weight:750;font-size:18px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}
-.dot{display:inline-block;width:20px;height:20px;border-radius:4px;border:1px solid #999;vertical-align:middle;margin-right:5px}
+  html { color-scheme: light only; }
+  body { font-family: system-ui, sans-serif; margin: 20px; background:#fff; color:#111; }
+  h1 { margin-bottom: 4px; }
+  h2 { margin-top: 28px; }
+  .muted { color:#555; }
+  .panel { border:1px solid #bbb; border-radius:10px; padding:14px; margin:14px 0; }
+  button { font-size:16px; padding:10px 16px; }
+  table { border-collapse:collapse; width:100%; margin-top:10px; font-size:13px; }
+  th,td { border:1px solid #ccc; padding:5px 6px; text-align:left; vertical-align:top; }
+  th { background:#f2f2f2; position:sticky; top:0; }
+  .swatch { width:22px; height:22px; border:1px solid #888; display:inline-block; vertical-align:middle; margin-right:6px; }
+  .good { font-weight:700; }
+  .error { color:#9b0000; font-weight:700; }
+  code { background:#f4f4f4; padding:1px 4px; }
+  .scroll { max-height:58vh; overflow:auto; }
+  .track { margin-top:20px; border-top:2px solid #ddd; padding-top:12px; }
+  .cross { font-weight:700; }
+  .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px; margin-top:10px; }
+  .summary-card { border:1px solid #ccc; border-radius:8px; padding:8px; }
+  .tiny { font-size:12px; color:#666; }
 </style>
 </head>
 <body>
-<main>
-<div class="card">
-<h1>Studio Pigment Mixer — Named Primary Ladders</h1>
-<div class="muted">The exact HEX shown for each selected primary is the exact RGB value used for the secondary mixes. Red/Magenta, Yellow, and Blue can each first be physically diluted with White through Mixbox itself. No hidden mixing profile exists. Every result is also given a conventional nearest-color name.</div>
-<div id="engineStatus" style="margin-top:10px">Loading Mixbox…</div>
+<h1>Studio Pigment Mixer — Pair-by-Pair Transition Auditor</h1>
+<div class="muted">
+Runs real Mixbox interpolation at every 1% step and routes every result through the current
+Premium → Clean → Earthy classifier. No output colors are forced or corrected.
 </div>
 
-<div class="card">
-<h2>Choose primary shades</h2>
-<div class="grid">
-<div class="box">
-<b>Red / Magenta ladder</b>
-<select id="redSel"></select><label style="display:block;margin-top:10px">Red/Magenta HEX</label><input id="redHex" type="text" value="#BD2123" maxlength="7" spellcheck="false"><div class="muted">Editable pre-dilution Mixbox input.</div>
-<label style="display:block;margin-top:10px">White mixed into Red/Magenta: <b id="redWhiteVal">0%</b></label>
-<input id="redWhite" type="range" min="0" max="40" step="1" value="15" style="width:100%">
-<div id="redSw" class="swatch"></div>
-<div id="redInfo"></div>
+<div class="panel">
+  <div><strong>Current Pigments</strong></div>
+  <div>Red <code>#FF2E5B</code> · Yellow <code>#FFEE00</code> · Blue <code>#0033FF</code> · White <code>#FFFFFF</code> · Black <code>#000000</code></div>
+  <p><button id="runBtn" disabled>Run Transition Audit</button></p>
+  <div id="engineStatus">Loading Mixbox…</div>
 </div>
 
-<div class="box">
-<b>Yellow ladder</b>
-<select id="yellowSel"></select><label style="display:block;margin-top:10px">Yellow HEX</label><input id="yellowHex" type="text" value="#FEEC00" maxlength="7" spellcheck="false"><div class="muted">Editable pre-dilution Mixbox input.</div>
-<label style="display:block;margin-top:10px">White mixed into Yellow: <b id="yellowWhiteVal">0%</b></label>
-<input id="yellowWhite" type="range" min="0" max="40" step="1" value="15" style="width:100%">
-<div id="yellowSw" class="swatch"></div>
-<div id="yellowInfo"></div>
+<div class="panel">
+  <strong>Audited tracks</strong>
+  <div class="tiny">3 primary pair tracks + 6 dilution/shade tracks = 9 total.</div>
+  <div id="trackList"></div>
 </div>
 
-<div class="box">
-<b>Blue ladder</b>
-<select id="blueSel"></select><label style="display:block;margin-top:10px">Blue HEX</label><input id="blueHex" type="text" value="#190059" maxlength="7" spellcheck="false"><div class="muted">Editable pre-dilution Mixbox input.</div>
-<label style="display:block;margin-top:10px">White mixed into Blue: <b id="blueWhiteVal">0%</b></label>
-<input id="blueWhite" type="range" min="0" max="40" step="1" value="15" style="width:100%">
-<div id="blueSw" class="swatch"></div>
-<div id="blueInfo"></div>
-</div>
-</div>
-<div style="margin-top:12px"><button onclick="testCurrent()">Test selected trio 50/50</button></div>
+<div class="panel">
+  <strong>Boundary summary</strong>
+  <div id="boundarySummary">Not run yet.</div>
 </div>
 
-<div class="card">
-<h2>Named 50/50 results</h2>
-<div class="grid">
-<div class="box"><b>Red + Yellow</b><div id="oSw" class="swatch"></div><div id="oInfo"></div></div>
-<div class="box"><b>Yellow + Blue</b><div id="gSw" class="swatch"></div><div id="gInfo"></div></div>
-<div class="box"><b>Blue + Red</b><div id="pSw" class="swatch"></div><div id="pInfo"></div></div>
-</div>
-</div>
-
-<div class="card">
-<h2>Systematic sweep</h2>
-<div class="muted">Tests every ladder combination through the same <code>mixbox.lerp(..., 0.5)</code> call. Sort is only a rough aid; names, HEXes and swatches remain visible for human judgment.</div>
-<div style="margin:12px 0"><button onclick="runSweep()">Run all combinations</button></div>
-<div style="overflow:auto">
-<table>
-<thead><tr><th>Red/Magenta</th><th>Yellow</th><th>Blue</th><th>Red+Yellow</th><th>Yellow+Blue</th><th>Blue+Red</th><th>Score</th></tr></thead>
-<tbody id="sweepRows"></tbody>
-</table>
-</div>
-</div>
-</main>
+<div id="results"></div>
 
 <script src="https://scrtwpns.com/mixbox.js"></script>
 <script>
-/*
-  Candidate ladders.
-  Endpoints include documented Mixbox pigment colors.
-  Intermediate values are explicitly shown test candidates, not claimed pigment identities.
-*/
-const REDS = [
-  {label:"Cadmium Red", hex:"#FF2702"},
-  {label:"Warm Scarlet — test shade", hex:"#E9250D"},
-  {label:"Scarlet Red — test shade", hex:"#D32318"},
-  {label:"Crimson Red — test shade", hex:"#BD2123"},
-  {label:"Cool Crimson — test shade", hex:"#A71F2E"},
-  {label:"Magenta Red — test shade", hex:"#911D39"},
-  {label:"Quinacridone Magenta", hex:"#80022E"}
-];
-
-const YELLOWS = [
-  {label:"Cadmium Yellow", hex:"#FEEC00"},
-  {label:"Bright Yellow — test shade", hex:"#FDE200"},
-  {label:"Hansa Yellow", hex:"#FCD300"},
-  {label:"Golden Yellow — test shade", hex:"#EFC400"},
-  {label:"Warm Golden Yellow — test shade", hex:"#DFAF00"}
-];
-
-const BLUES = [
-  {label:"Ultramarine Blue", hex:"#190059"},
-  {label:"Violet Blue — test shade", hex:"#14086A"},
-  {label:"Deep Royal Blue — test shade", hex:"#0D1278"},
-  {label:"Cobalt Blue", hex:"#002185"},
-  {label:"Cool Cobalt — test shade", hex:"#053269"},
-  {label:"Blue-Teal — test shade", hex:"#0A4357"},
-  {label:"Phthalo Blue", hex:"#0D1B44"}
-];
-
-/* Conventional-name vocabulary: deliberately ordinary names, no novelty naming. */
-const NAMES = {
-  "Black":"#000000","White":"#FFFFFF","Red":"#FF0000","Dark Red":"#8B0000","Crimson":"#DC143C",
-  "Firebrick":"#B22222","Indian Red":"#CD5C5C","Tomato":"#FF6347","Orange Red":"#FF4500",
-  "Orange":"#FFA500","Dark Orange":"#FF8C00","Coral":"#FF7F50","Chocolate":"#D2691E",
-  "Peru":"#CD853F","Sienna":"#A0522D","Brown":"#A52A2A","Maroon":"#800000",
-  "Gold":"#FFD700","Goldenrod":"#DAA520","Dark Goldenrod":"#B8860B","Yellow":"#FFFF00",
-  "Khaki":"#F0E68C","Olive":"#808000","Yellow Green":"#9ACD32","Chartreuse":"#7FFF00",
-  "Lime":"#00FF00","Green":"#008000","Dark Green":"#006400","Forest Green":"#228B22",
-  "Sea Green":"#2E8B57","Medium Sea Green":"#3CB371","Emerald Green":"#00A550","Teal":"#008080",
-  "Cyan":"#00FFFF","Turquoise":"#40E0D0","Steel Blue":"#4682B4","Royal Blue":"#4169E1",
-  "Blue":"#0000FF","Medium Blue":"#0000CD","Navy":"#000080","Midnight Blue":"#191970",
-  "Slate Blue":"#6A5ACD","Dark Slate Blue":"#483D8B","Indigo":"#4B0082","Purple":"#800080",
-  "Deep Violet":"#4B0082","Dark Violet":"#9400D3","Dark Orchid":"#9932CC","Medium Purple":"#9370DB",
-  "Violet":"#EE82EE","Magenta":"#FF00FF","Deep Pink":"#FF1493","Hot Pink":"#FF69B4",
-  "Rosy Brown":"#BC8F8F","Slate Gray":"#708090","Dark Slate Gray":"#2F4F4F","Gray":"#808080"
+const pigments = {
+  Red:{name:"Red",hex:"#FF2E5B"},
+  Yellow:{name:"Yellow",hex:"#FFEE00"},
+  Blue:{name:"Blue",hex:"#0033FF"},
+  White:{name:"White",hex:"#FFFFFF"},
+  Black:{name:"Black",hex:"#000000"}
 };
 
-function populate(id,arr,selectedIndex){
- const s=document.getElementById(id);
- s.innerHTML=arr.map((x,i)=>`<option value="${i}" ${i===selectedIndex?"selected":""}>${x.label} — ${x.hex}</option>`).join("");
- s.onchange=()=>{
- const maps={redSel:[REDS,"redHex"],yellowSel:[YELLOWS,"yellowHex"],blueSel:[BLUES,"blueHex"]};
- if(maps[id])document.getElementById(maps[id][1]).value=maps[id][0][Number(s.value)].hex;
- testCurrent();
-};
-}
-populate("redSel",REDS,0);
-populate("yellowSel",YELLOWS,2);
-populate("blueSel",BLUES,3);
+const tracks = [
+  ["Red ↔ Yellow","Red","Yellow"],
+  ["Yellow ↔ Blue","Yellow","Blue"],
+  ["Blue ↔ Red","Blue","Red"],
+  ["Red ↔ White","Red","White"],
+  ["Yellow ↔ White","Yellow","White"],
+  ["Blue ↔ White","Blue","White"],
+  ["Red ↔ Black","Red","Black"],
+  ["Yellow ↔ Black","Yellow","Black"],
+  ["Blue ↔ Black","Blue","Black"]
+];
 
-function hexRgb(h){
- h=h.replace("#","");
- return {r:parseInt(h.slice(0,2),16),g:parseInt(h.slice(2,4),16),b:parseInt(h.slice(4,6),16)};
+const premiums = [
+  {id:"CLR_084", name:"Burnt Sienna", jarId:"JAR_BURNT_SIENNA", h:19, hTol:10, s:56, sTol:12, l:40, lTol:10},
+  {id:"CLR_092", name:"Olive Drab", jarId:"JAR_OLIVE_DRAB", h:80, hTol:15, s:60, sTol:15, l:35, lTol:10},
+  {id:"CLR_105", name:"Slate Grey", jarId:"JAR_SLATE_GREY", h:210, hTol:20, s:13, sTol:6, l:50, lTol:8}
+];
+
+const clean = [
+  {minH:346,maxH:359,minS:60,maxS:100,minL:30,maxL:75,jar:"JAR_RED",name:"Red"},
+  {minH:0,maxH:10,minS:60,maxS:100,minL:30,maxL:75,jar:"JAR_RED",name:"Red"},
+  {minH:11,maxH:14,minS:65,maxS:100,minL:40,maxL:70,jar:"JAR_VERMILION",name:"Vermilion"},
+  {minH:15,maxH:40,minS:55,maxS:100,minL:35,maxL:75,jar:"JAR_ORANGE",name:"Orange"},
+  {minH:41,maxH:52,minS:55,maxS:100,minL:40,maxL:80,jar:"JAR_AMBER",name:"Amber"},
+  {minH:53,maxH:65,minS:55,maxS:100,minL:40,maxL:85,jar:"JAR_YELLOW",name:"Yellow"},
+  {minH:66,maxH:140,minS:30,maxS:100,minL:30,maxL:75,jar:"JAR_GREEN",name:"Green"},
+  {minH:141,maxH:200,minS:50,maxS:100,minL:35,maxL:75,jar:"JAR_TEAL",name:"Teal"},
+  {minH:201,maxH:260,minS:55,maxS:100,minL:30,maxL:70,jar:"JAR_BLUE",name:"Blue"},
+  {minH:261,maxH:310,minS:45,maxS:100,minL:25,maxL:65,jar:"JAR_PURPLE",name:"Purple"},
+  {minH:311,maxH:345,minS:55,maxS:100,minL:30,maxL:70,jar:"JAR_MAGENTA",name:"Magenta"}
+];
+
+function hexToRgb(hex){
+  hex=hex.replace("#","");
+  return [parseInt(hex.slice(0,2),16),parseInt(hex.slice(2,4),16),parseInt(hex.slice(4,6),16)];
 }
-function rgbString(hex){const c=hexRgb(hex);return `rgb(${c.r}, ${c.g}, ${c.b})`;}
-function rgbStringToHex(s){
- const m=String(s).match(/(\d+(?:\.\d+)?)[^\d]+(\d+(?:\.\d+)?)[^\d]+(\d+(?:\.\d+)?)/);
- if(!m)return null;
- const vals=[m[1],m[2],m[3]].map(v=>Math.max(0,Math.min(255,Math.round(Number(v)))));
- return "#"+vals.map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();
+function rgbToHex(rgb){
+  const a = Array.isArray(rgb) ? rgb : [rgb.r,rgb.g,rgb.b];
+  return "#" + a.slice(0,3).map(v=>Math.round(v).toString(16).padStart(2,"0")).join("").toUpperCase();
 }
-function mixHex(a,b){
- const out=mixbox.lerp(rgbString(a),rgbString(b),0.5);
- const hex=rgbStringToHex(out);
- if(!hex)throw new Error("Could not parse Mixbox output: "+out);
- return hex;
+function rgbString(hex){
+  const [r,g,b]=hexToRgb(hex);
+  return `rgb(${r},${g},${b})`;
+}
+function rgbToHsl(hex){
+  let [r,g,b]=hexToRgb(hex).map(x=>x/255);
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h=0,s=0,l=(max+min)/2;
+  const d=max-min;
+  if(d!==0){
+    s=d/(1-Math.abs(2*l-1));
+    switch(max){
+      case r: h=60*(((g-b)/d)%6); break;
+      case g: h=60*(((b-r)/d)+2); break;
+      case b: h=60*(((r-g)/d)+4); break;
+    }
+  }
+  if(h<0) h+=360;
+  return {h:Math.round(h), s:Math.round(s*100), l:Math.round(l*100)};
+}
+function hueDist(a,b){
+  const d=Math.abs(a-b)%360;
+  return d>180?360-d:d;
+}
+function classify(hex){
+  const x=rgbToHsl(hex);
+  for(const p of premiums){
+    if(hueDist(p.h,x.h)<=p.hTol && Math.abs(p.s-x.s)<=p.sTol && Math.abs(p.l-x.l)<=p.lTol)
+      return {type:"Premium", name:p.name, jar:p.jarId, ...x};
+  }
+  for(const c of clean){
+    if(x.h>=c.minH && x.h<=c.maxH && x.s>=c.minS && x.s<=c.maxS && x.l>=c.minL && x.l<=c.maxL)
+      return {type:"Clean", name:c.name, jar:c.jar, ...x};
+  }
+  let family;
+  if(x.s<14) family="Grey";
+  else if(x.h>=60 && x.h<=165) family="Green";
+  else family="Brown";
+  const tone=x.l>65?"Light":x.l>=35?"Base":"Dark";
+  return {type:"Earthy", name:`${tone} Earthy ${family}`, jar:`${tone.toUpperCase()}_JAR_MUD_${family.toUpperCase()}`, ...x};
+}
+function mix(a,b,t){
+  return rgbToHex(mixbox.lerp(rgbString(a),rgbString(b),t));
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function auditTrack(label,aKey,bKey){
+  const a=pigments[aKey], b=pigments[bKey];
+  const rows=[];
+  let lastJar=null;
+  const transitions=[];
+  for(let pctB=0;pctB<=100;pctB++){
+    const t=pctB/100;
+    const pctA=100-pctB;
+    const out=mix(a.hex,b.hex,t);
+    const cls=classify(out);
+    const crossed = lastJar!==null && cls.jar!==lastJar;
+    if(crossed){
+      transitions.push({
+        at:`${pctA}:${pctB}`,
+        from:lastJar,
+        to:cls.jar,
+        hex:out,
+        h:cls.h,s:cls.s,l:cls.l,
+        name:cls.name
+      });
+    }
+    rows.push({pctA,pctB,out,cls,crossed});
+    lastJar=cls.jar;
+  }
+  return {label,a,b,rows,transitions};
 }
 
-function mixWhite(hex,percent){
-  if(percent<=0)return hex;
-  const out=mixbox.lerp(rgbString(hex),rgbString("#FFFFFF"),percent/100);
-  const mixed=rgbStringToHex(out);
-  if(!mixed)throw new Error("Could not parse Mixbox white-dilution output: "+out);
-  return mixed;
+function render(){
+  const audits=tracks.map(t=>auditTrack(...t));
+
+  document.getElementById("trackList").innerHTML =
+    `<div class="summary-grid">`+
+    tracks.map(t=>`<div class="summary-card">${esc(t[0])}</div>`).join("")+
+    `</div>`;
+
+  document.getElementById("boundarySummary").innerHTML =
+    audits.map(a=>{
+      const parts = a.transitions.length
+        ? a.transitions.map(x=>`${x.at} → ${x.name} (${x.jar})`).join("<br>")
+        : "No classification changes";
+      return `<div class="summary-card"><strong>${esc(a.label)}</strong><br>${parts}</div>`;
+    }).join("");
+
+  document.getElementById("results").innerHTML = audits.map(a=>{
+    const body = a.rows.map(r=>{
+      const c=r.cls;
+      return `<tr class="${r.crossed?'cross':''}">
+        <td>${r.pctA}:${r.pctB}</td>
+        <td><span class="swatch" style="background:${r.out}"></span><code>${r.out}</code></td>
+        <td>H${c.h} S${c.s} L${c.l}</td>
+        <td>${esc(c.type)}: ${esc(c.name)}</td>
+        <td><code>${esc(c.jar)}</code></td>
+        <td>${r.crossed?'🚧 BORDER CROSS':''}</td>
+      </tr>`;
+    }).join("");
+    return `<div class="panel track">
+      <h2>${esc(a.label)}</h2>
+      <div class="muted">${esc(a.a.name)} 100% → ${esc(a.b.name)} 100%, 1% increments</div>
+      <div class="scroll">
+      <table>
+        <thead><tr><th>Ratio A:B</th><th>Result</th><th>HSL</th><th>Classification</th><th>Unlock Jar</th><th>Boundary</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table>
+      </div>
+    </div>`;
+  }).join("");
 }
 
-function normalizeHexInput(value){
- let h=String(value||"").trim().toUpperCase();
- if(!h.startsWith("#"))h="#"+h;
- return /^#[0-9A-F]{6}$/.test(h)?h:null;
+function ready(){
+  if(window.mixbox){
+    document.getElementById("engineStatus").innerHTML='<span class="good">Mixbox loaded. Ready.</span>';
+    document.getElementById("runBtn").disabled=false;
+    document.getElementById("runBtn").addEventListener("click",render);
+  }else{
+    document.getElementById("engineStatus").innerHTML='<span class="error">Mixbox did not load. Internet access to scrtwpns.com/mixbox.js is required.</span>';
+  }
 }
-function nearestName(hex){
- const c=hexRgb(hex);
- let best=null,bd=Infinity;
- for(const [name,h] of Object.entries(NAMES)){
-   const x=hexRgb(h);
-   // perceptual-ish weighted RGB distance
-   const rmean=(c.r+x.r)/2;
-   const dr=c.r-x.r,dg=c.g-x.g,db=c.b-x.b;
-   const d=(2+rmean/256)*dr*dr + 4*dg*dg + (2+(255-rmean)/256)*db*db;
-   if(d<bd){bd=d;best=name}
- }
- return best;
-}
-function hsl(hex){
- let {r,g,b}=hexRgb(hex);r/=255;g/=255;b/=255;
- const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;
- let h=0,l=(max+min)/2,s=0;
- if(d){
-   s=d/(1-Math.abs(2*l-1));
-   if(max===r)h=60*(((g-b)/d)%6);
-   else if(max===g)h=60*((b-r)/d+2);
-   else h=60*((r-g)/d+4);
-   if(h<0)h+=360;
- }
- return {h,s:s*100,l:l*100};
-}
-function hueDistance(a,b){return Math.abs(((a-b+180)%360)-180);}
-function scoreSecondary(hex,targetHue){
- const x=hsl(hex);
- return hueDistance(x.h,targetHue)+Math.max(0,55-x.s)*0.8;
-}
-function current(arr,id){return arr[Number(document.getElementById(id).value)]}
-function showPrimary(prefix,p){
- const n=nearestName(p.hex);
- document.getElementById(prefix+"Sw").style.background=p.hex;
- document.getElementById(prefix+"Info").innerHTML=
-   `<div class="big">${p.label}</div><div>${n}</div><code>${p.hex}</code><div class="muted">Exact Mixbox input</div>`;
-}
-function showResult(prefix,hex){
- const n=nearestName(hex),x=hsl(hex);
- document.getElementById(prefix+"Sw").style.background=hex;
- document.getElementById(prefix+"Info").innerHTML=
-   `<div class="big">${n}</div><code>${hex}</code><div class="muted">H ${x.h.toFixed(1)}° · S ${x.s.toFixed(1)}% · L ${x.l.toFixed(1)}%</div>`;
-}
-function testCurrent(){
- if(!window.mixbox)return;
- const r0=normalizeHexInput(document.getElementById("redHex").value);
- const y0=normalizeHexInput(document.getElementById("yellowHex").value);
- const b0=normalizeHexInput(document.getElementById("blueHex").value);
- if(!r0||!y0||!b0)return;
-
- const rw=Number(document.getElementById("redWhite").value);
- const yw=Number(document.getElementById("yellowWhite").value);
- const bw=Number(document.getElementById("blueWhite").value);
- document.getElementById("redWhiteVal").textContent=rw+"%";
- document.getElementById("yellowWhiteVal").textContent=yw+"%";
- document.getElementById("blueWhiteVal").textContent=bw+"%";
-
- const r={label:`Custom Red/Magenta ${r0}${rw?` + ${rw}% White`:""}`,hex:mixWhite(r0,rw)};
- const y={label:`Custom Yellow ${y0}${yw?` + ${yw}% White`:""}`,hex:mixWhite(y0,yw)};
- const b={label:`Custom Blue ${b0}${bw?` + ${bw}% White`:""}`,hex:mixWhite(b0,bw)};
-
- showPrimary("red",r); showPrimary("yellow",y); showPrimary("blue",b);
- showResult("o",mixHex(r.hex,y.hex));
- showResult("g",mixHex(y.hex,b.hex));
- showResult("p",mixHex(b.hex,r.hex));
-}
-function resultCell(hex){
- return `<span class="dot" style="background:${hex}"></span><b>${nearestName(hex)}</b><br><code>${hex}</code>`;
-}
-function runSweep(){
- if(!window.mixbox)return;
- const rows=[];
- for(const r of REDS)for(const y of YELLOWS)for(const b of BLUES){
-   const o=mixHex(r.hex,y.hex),g=mixHex(y.hex,b.hex),p=mixHex(b.hex,r.hex);
-   const score=scoreSecondary(o,30)+scoreSecondary(g,120)+scoreSecondary(p,285);
-   rows.push({r,y,b,o,g,p,score});
- }
- rows.sort((a,b)=>a.score-b.score);
- document.getElementById("sweepRows").innerHTML=rows.map(x=>
-   `<tr>
-   <td>${x.r.label}<br><code>${x.r.hex}</code></td>
-   <td>${x.y.label}<br><code>${x.y.hex}</code></td>
-   <td>${x.b.label}<br><code>${x.b.hex}</code></td>
-   <td>${resultCell(x.o)}</td>
-   <td>${resultCell(x.g)}</td>
-   <td>${resultCell(x.p)}</td>
-   <td>${x.score.toFixed(1)}</td>
-   </tr>`).join("");
-}
-document.getElementById("redHex").oninput=testCurrent;
-document.getElementById("yellowHex").oninput=testCurrent;
-document.getElementById("blueHex").oninput=testCurrent;
-document.getElementById("redWhite").oninput=testCurrent;
-document.getElementById("yellowWhite").oninput=testCurrent;
-document.getElementById("blueWhite").oninput=testCurrent;
-
-window.addEventListener("load",()=>{
- if(window.mixbox){
-   document.getElementById("engineStatus").innerHTML='<span class="good">✓ Official Mixbox loaded.</span>';
-   testCurrent(); runSweep();
- }else{
-   document.getElementById("engineStatus").innerHTML='<span class="error">Mixbox did not load. Internet access to scrtwpns.com/mixbox.js is required.</span>';
- }
-});
+setTimeout(ready,500);
 </script>
 </body>
 </html>
