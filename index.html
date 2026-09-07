@@ -14,13 +14,19 @@ header{position:sticky;top:0;z-index:20;background:rgba(244,240,232,.97);backdro
 .wrap{max-width:1200px;margin:auto}
 h1{font-size:19px;margin:0 0 3px} .sub{font-size:12px;color:var(--muted)}
 .toolbar{display:grid;grid-template-columns:minmax(140px,1fr) auto auto auto auto;gap:8px;margin-top:9px}
-.filters-panel{margin-top:9px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px}
+.filters-panel,.mud-filters-panel{margin-top:9px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px}
 .filters-title{font-size:12px;font-weight:800;margin-bottom:7px}
+.mud-filter-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mud-filter-group{border:1px solid var(--line);border-radius:8px;padding:6px}
+.mud-filter-group b{display:block;font-size:11px;margin-bottom:5px;text-align:center}
+.mud-filter-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.mud-filter-button{padding:7px 4px;font-size:11px}
+.mud-filter-button.active{background:#e9dfcf;border-color:#9b7957;color:#563b26;font-weight:800}
 .primary-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .primary-filter{border:1px solid var(--line);border-radius:8px;padding:6px;text-align:center;font-size:11px}
 .primary-filter b{display:block;margin-bottom:4px}.primary-filter label{display:block;white-space:nowrap}
 .primary-filter input{padding:0;margin-right:3px}
-@media(max-width:560px){.toolbar{grid-template-columns:1fr 1fr}.toolbar #search{grid-column:1/-1}.primary-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.primary-filter:last-child{grid-column:1/-1}}
+@media(max-width:560px){.toolbar{grid-template-columns:1fr 1fr}.toolbar #search{grid-column:1/-1}.mud-filter-groups{grid-template-columns:1fr}.primary-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.primary-filter:last-child{grid-column:1/-1}}
 input,select,button{font:inherit;border:1px solid #bfb6aa;border-radius:9px;background:#fff;padding:9px;color:var(--ink)}
 button{cursor:pointer} button.active{background:#2f2b27;color:#fff;border-color:#2f2b27}
 .stats{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;font-size:12px} .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 8px}
@@ -62,6 +68,12 @@ main{max-width:1200px;margin:auto;padding:12px}
 <button id="exportAudit" title="Export all 711 audit classifications and Mudbucket choices as CSV">Export audit</button>
 <button id="reset" title="Clear saved category marks">Reset marks</button>
 </div>
+<div class="mud-filters-panel">
+<div class="filters-title">Mudbucket selection filters — combine one Lightness and one Color Family to view a whole bucket at once</div>
+<div class="mud-filter-groups">
+<div class="mud-filter-group"><b>Lightness</b><div class="mud-filter-row"><button class="mud-filter-button" data-mud-filter="light" data-value="light">Light</button><button class="mud-filter-button" data-mud-filter="light" data-value="regular">Regular</button><button class="mud-filter-button" data-mud-filter="light" data-value="dark">Dark</button></div></div>
+<div class="mud-filter-group"><b>Color Family</b><div class="mud-filter-row"><button class="mud-filter-button" data-mud-filter="family" data-value="grey">Grey</button><button class="mud-filter-button" data-mud-filter="family" data-value="green">Green</button><button class="mud-filter-button" data-mud-filter="family" data-value="brown">Brown</button></div></div>
+</div></div>
 <div class="filters-panel">
 <div class="filters-title">Primary-color recipe filters — Include = must contain · Exclude = must not contain</div>
 <div class="primary-filters">
@@ -196,6 +208,9 @@ function updateCard(id){
   card.querySelector('.mud-status-wrap').innerHTML=mudStatusHtml(e);
 }
 function selectedPrimary(mode){return [...document.querySelectorAll(`input[data-mode="${mode}"]:checked`)].map(x=>x.dataset.key)}
+const mudFilter={light:'',family:''};
+function updateMudFilterButtons(){document.querySelectorAll('.mud-filter-button').forEach(b=>b.classList.toggle('active',mudFilter[b.dataset.mudFilter]===b.dataset.value));}
+function setMudFilter(kind,value){mudFilter[kind]=mudFilter[kind]===value?'':value;updateMudFilterButtons();applyFilter();}
 function applyFilter(){
   const q=document.getElementById('search').value.trim().toLowerCase(),f=document.getElementById('filter').value,inc=selectedPrimary('include'),exc=selectedPrimary('exclude');
   let shown=0,looks=0,mud=0,wrong=0,spell=0,incomplete=0,unreviewed=0;
@@ -206,7 +221,8 @@ function applyFilter(){
     const stateOK=f==='all'||(f==='unreviewed'&&!st)||(f===st);
     const textOK=!q||c.dataset.search.includes(q)||bucket.includes(q);
     const includeOK=inc.every(k=>c.dataset[k]==='1');const excludeOK=exc.every(k=>c.dataset[k]==='0');
-    const on=stateOK&&textOK&&includeOK&&excludeOK;c.classList.toggle('hidden',!on);if(on)shown++;
+    const mudFilterOK=(!mudFilter.light&&!mudFilter.family)||(e.state==='mud'&&(!mudFilter.light||e.light===mudFilter.light)&&(!mudFilter.family||e.family===mudFilter.family));
+    const on=stateOK&&textOK&&includeOK&&excludeOK&&mudFilterOK;c.classList.toggle('hidden',!on);if(on)shown++;
   });
   document.getElementById('shownStat').textContent=shown+' shown';document.getElementById('looksStat').textContent=looks+' looks right';document.getElementById('mudStat').textContent=mud+' complete mudbucket';document.getElementById('wrongStat').textContent=wrong+' name wrong';document.getElementById('spellStat').textContent=spell+' misspelling';document.getElementById('incompleteStat').textContent=incomplete+' incomplete';document.getElementById('unreviewedStat').textContent=unreviewed+' unreviewed';document.getElementById('empty').classList.toggle('hidden',shown>0);
 }
@@ -228,8 +244,9 @@ function exportAudit(){
 }
 document.getElementById('exportAudit').onclick=exportAudit;
 document.getElementById('search').addEventListener('input',applyFilter);document.getElementById('filter').addEventListener('change',applyFilter);
+document.querySelectorAll('.mud-filter-button').forEach(b=>b.onclick=()=>setMudFilter(b.dataset.mudFilter,b.dataset.value));
 document.querySelectorAll('.primary-filter input').forEach(cb=>cb.addEventListener('change',()=>{if(cb.checked){const other=document.querySelector(`input[data-key="${cb.dataset.key}"][data-mode="${cb.dataset.mode==='include'?'exclude':'include'}"]`);if(other)other.checked=false;const fallback=document.querySelector(`input[data-key="${cb.dataset.key}"][data-mode="${cb.dataset.mode==='include'?'exclude':'include'}"]`);if(fallback)fallback.checked=false;}applyFilter();}));
-document.getElementById('clearFilters').onclick=()=>{document.getElementById('search').value='';document.getElementById('filter').value='all';document.querySelectorAll('.primary-filter input').forEach(x=>x.checked=false);applyFilter();};
+document.getElementById('clearFilters').onclick=()=>{document.getElementById('search').value='';document.getElementById('filter').value='all';mudFilter.light='';mudFilter.family='';updateMudFilterButtons();document.querySelectorAll('.primary-filter input').forEach(x=>x.checked=false);applyFilter();};
 document.getElementById('reset').onclick=()=>{if(confirm('Clear every saved classification and Mudbucket choice?')){review={};saveReview();document.querySelectorAll('.card').forEach(c=>updateCard(c.dataset.id));applyFilter();}};
 const topBtn=document.getElementById('topBtn');window.addEventListener('scroll',()=>topBtn.style.display=scrollY>800?'block':'none');topBtn.onclick=()=>scrollTo({top:0,behavior:'smooth'});
 let tries=0;(function waitMixbox(){if(window.mixbox)return init();if(++tries<80)setTimeout(waitMixbox,100);else init();})();

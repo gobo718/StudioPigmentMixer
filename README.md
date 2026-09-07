@@ -1,4 +1,4 @@
-# MASHPEDITION Pigment Catalog Auditor v2.3 — 9 Mudbuckets
+# MASHPEDITION Pigment Catalog Auditor v2.4 — Mudbucket Review Filters
 
 Purpose: visually audit all 711 named Pigments while resolving Mudbucket recipes into the established 3×3 Mudbucket system.
 
@@ -26,6 +26,16 @@ Together these produce the nine buckets:
 
 A pigment with only one Mudbucket dimension selected is visibly marked **Incomplete** and can be filtered with `Incomplete Mudbucket`.
 
+
+## Six Mudbucket review filters
+
+All six Mudbucket dimensions are now visible together above the catalog:
+
+- Light / Regular / Dark
+- Grey / Green / Brown
+
+Click any one filter to see every Mudbucket color carrying that selection. Combine one Lightness filter with one Color Family filter to display a single complete bucket, such as `Light Brown` or `Dark Green`, so the whole bucket can be judged together. Click an active filter again to clear it. **Clear filters** clears these Mudbucket filters along with search, category, and primary-color filters.
+
 ## Preloaded current audit
 
 The current reviewed state is embedded as the starting point:
@@ -40,7 +50,7 @@ All 212 Mudbucket colors are preloaded with the nine-bucket assignments from `MA
 
 ## Browser storage migration
 
-v2.3 stores its expanded state under `mashpeditionPigmentAuditV23`.
+v2.4 continues to use the v2.3 expanded-state key `mashpeditionPigmentAuditV23`, so existing v2.3 choices carry forward on the same website/origin.
 
 On first load it starts from the embedded current audit and, when the earlier `mashpeditionPigmentAudit` key exists, migrates those saved classifications on top of the embedded data. Existing legacy `Mudbucket` marks receive their precomputed Lightness/Family assignment when available. The legacy key is also kept synchronized at the classification level for backward compatibility.
 
