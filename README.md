@@ -1,26 +1,67 @@
-# MASHPEDITION Pigment Catalog Auditor
+# MASHPEDITION Pigment Catalog Auditor v2.3 — 9 Mudbuckets
 
-Purpose: visually audit all 711 named Pigments from the completed Mix Order catalog.
+Purpose: visually audit all 711 named Pigments while resolving Mudbucket recipes into the established 3×3 Mudbucket system.
+
+## Classification rule
+
+Every pigment must resolve in exactly one of two ways:
+
+1. One original classification: `Looks right`, `Name wrong`, or `Misspelling`.
+2. Mudbucket: one Lightness choice **and** one Color Family choice.
+
+Mudbucket Lightness choices:
+- Light
+- Regular
+- Dark
+
+Mudbucket Color Family choices:
+- Grey
+- Green
+- Brown
+
+Together these produce the nine buckets:
+- Light Grey / Grey / Dark Grey
+- Light Green / Green / Dark Green
+- Light Brown / Brown / Dark Brown
+
+A pigment with only one Mudbucket dimension selected is visibly marked **Incomplete** and can be filtered with `Incomplete Mudbucket`.
+
+## Preloaded current audit
+
+The current reviewed state is embedded as the starting point:
+- 499 Looks Right
+- 212 Mudbucket
+- 0 Name Wrong
+- 0 Misspelling
+- 0 incomplete
+- 0 unreviewed
+
+All 212 Mudbucket colors are preloaded with the nine-bucket assignments from `MASHPEDITION_Pigment_Audit_2026-09-07_9_Mudbuckets.csv`.
+
+## Browser storage migration
+
+v2.3 stores its expanded state under `mashpeditionPigmentAuditV23`.
+
+On first load it starts from the embedded current audit and, when the earlier `mashpeditionPigmentAudit` key exists, migrates those saved classifications on top of the embedded data. Existing legacy `Mudbucket` marks receive their precomputed Lightness/Family assignment when available. The legacy key is also kept synchronized at the classification level for backward compatibility.
+
+## Export
+
+**Export audit** now writes:
+
+`# | Pigment Name | Recipe | HEX | Classification | Mud Lightness | Mud Family | Mudbucket`
+
+For a complete Mudbucket color, the final column contains the resolved bucket such as `Light Brown`, `Dark Green`, or `Grey`. Partial Mudbucket choices are preserved in the two component columns while the combined Mudbucket column remains blank.
+
+## Existing behavior preserved
 
 - Uses the established playable primary inputs: Red `#FF2E5B`, Yellow `#FFEE00`, Blue `#0033FF`, White `#FFFFFF`, Black `#000000`.
 - Uses Mixbox multi-color latent-space weighting so recipe part counts are honored directly.
 - Displays each swatch with Pigment Name, exact R/Y/B/W/K recipe, generated HEX, and catalog number.
-- Four mutually exclusive audit buckets are saved in browser localStorage: `Looks right`, `Mudbucket`, `Name wrong`, and `Misspelling`.
-- Primary-color filters provide separate Include and Exclude checkboxes for Red, Yellow, Blue, White, and Black. Include means a recipe must contain that primary; Exclude means it must not contain it. Selecting one automatically clears the opposite choice for the same primary.
-- Category filter supports All, each audit bucket, and Unreviewed. Search accepts names, recipe text, catalog number, or HEX.
-- Existing marks from the earlier two-bucket build are migrated automatically: Approved → Looks right; Needs review → Name wrong.
+- Primary-color Include/Exclude filters remain available.
+- Search and category filtering remain available.
 - The catalog data is embedded directly in `index.html`; no spreadsheet upload is required at runtime.
 
-Mixbox is loaded from `https://scrtwpns.com/mixbox.js`. This audit build therefore needs internet access when the page is opened. Mixbox evaluation is available under its stated noncommercial evaluation terms; commercial launch requires the appropriate Mixbox license.
+Mixbox is loaded from `https://scrtwpns.com/mixbox.js`, so the page needs internet access when opened.
 
-Source catalog: `MASHpedition_color_workbook_Grey_Name_Lookup Post Suggestions Complete.xlsm`, Mix Order rows 5–715 (711 unique named recipes).
-
-
-## Audit export
-
-Added an **Export audit** button. It downloads a CSV containing all 711 pigments with catalog number, pigment name, recipe, calculated HEX, and audit classification. This is an additive change: it uses the existing `mashpeditionPigmentAudit` browser-storage key and does not reset or migrate the user's saved review marks.
-
-
-## Name refresh
-
-All 711 embedded pigment names were refreshed from the latest authoritative workbook. Recipe IDs, Mixbox mixing logic, and the existing `mashpeditionPigmentAudit` localStorage key are unchanged, so deploying this update to the same site origin does not reset saved audit marks.
+Source catalog: `MASHpedition_color_workbook_Grey_Name_Lookup Post Suggestions Complete.xlsm`.
+Mudbucket assignments: `MASHPEDITION_Pigment_Audit_2026-09-07_9_Mudbuckets.csv`.
