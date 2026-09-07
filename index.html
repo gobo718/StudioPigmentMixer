@@ -13,7 +13,7 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;bac
 header{position:sticky;top:0;z-index:20;background:rgba(244,240,232,.97);backdrop-filter:blur(7px);border-bottom:1px solid var(--line);padding:10px 12px}
 .wrap{max-width:1200px;margin:auto}
 h1{font-size:19px;margin:0 0 3px} .sub{font-size:12px;color:var(--muted)}
-.toolbar{display:grid;grid-template-columns:minmax(140px,1fr) auto auto auto;gap:8px;margin-top:9px}
+.toolbar{display:grid;grid-template-columns:minmax(140px,1fr) auto auto auto auto;gap:8px;margin-top:9px}
 .filters-panel{margin-top:9px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px}
 .filters-title{font-size:12px;font-weight:800;margin-bottom:7px}
 .primary-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
@@ -49,6 +49,7 @@ main{max-width:1200px;margin:auto;padding:12px}
 <input id="search" type="search" placeholder="Search name, recipe, or #…">
 <select id="filter" aria-label="Category filter"><option value="all">All categories</option><option value="looks">✓ Looks right</option><option value="mud">🪣 Mudbucket</option><option value="wrong">✎ Name wrong</option><option value="spell">ABC Misspelling</option><option value="unreviewed">Unreviewed</option></select>
 <button id="clearFilters" title="Clear search and primary filters">Clear filters</button>
+<button id="exportAudit" title="Export all 711 audit classifications as CSV">Export audit</button>
 <button id="reset" title="Clear saved category marks">Reset marks</button>
 </div>
 <div class="filters-panel">
@@ -100,6 +101,23 @@ function setState(id,state){if(state)review[id]=state;else delete review[id];loc
 function selectedPrimary(mode){return [...document.querySelectorAll(`input[data-mode="${mode}"]:checked`)].map(x=>x.dataset.key)}
 function applyFilter(){const q=document.getElementById('search').value.trim().toLowerCase(),f=document.getElementById('filter').value,inc=selectedPrimary('include'),exc=selectedPrimary('exclude');let shown=0,looks=0,mud=0,wrong=0,spell=0;document.querySelectorAll('.card').forEach(c=>{const st=c.dataset.state;if(st==='looks')looks++;if(st==='mud')mud++;if(st==='wrong')wrong++;if(st==='spell')spell++;const stateOK=f==='all'||(f==='unreviewed'&&!st)||(f===st);const textOK=!q||c.dataset.search.includes(q);const includeOK=inc.every(k=>c.dataset[k]==='1');const excludeOK=exc.every(k=>c.dataset[k]==='0');const on=stateOK&&textOK&&includeOK&&excludeOK;c.classList.toggle('hidden',!on);if(on)shown++;});document.getElementById('shownStat').textContent=shown+' shown';document.getElementById('looksStat').textContent=looks+' looks right';document.getElementById('mudStat').textContent=mud+' mudbucket';document.getElementById('wrongStat').textContent=wrong+' name wrong';document.getElementById('spellStat').textContent=spell+' misspelling';document.getElementById('unreviewedStat').textContent=(PIGMENTS.length-looks-mud-wrong-spell)+' unreviewed';document.getElementById('empty').classList.toggle('hidden',shown>0);}
 function init(){if(!window.mixbox){document.getElementById('engine').innerHTML='<b>Mixbox did not load.</b> This page needs an internet connection to load the Mixbox evaluation library.';return;}const g=document.getElementById('grid');const frag=document.createDocumentFragment();for(const p of PIGMENTS)frag.appendChild(makeCard(p));g.appendChild(frag);document.getElementById('engine').innerHTML='<b>Mixbox loaded.</b> Primaries: Red #FF2E5B · Yellow #FFEE00 · Blue #0033FF · White #FFFFFF · Black #000000. Multi-color recipes are mixed by weighted Mixbox latent values.';applyFilter();}
+function csvCell(v){const s=String(v??'');return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function classificationLabel(st){return ({looks:'Looks Right',mud:'Mudbucket',wrong:'Name Wrong',spell:'Misspelling'})[st]||'Unreviewed'}
+function exportAudit(){
+  const rows=[['#','Pigment Name','Recipe','HEX','Classification']];
+  for(const p of PIGMENTS){
+    const card=document.querySelector(`.card[data-id="${p.id}"]`);
+    const hex=card?card.querySelector('.hex').textContent:mixRecipe(p);
+    rows.push([p.id,p.name,recipeText(p),hex,classificationLabel(stateFor(p.id))]);
+  }
+  const csv='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  const d=new Date(),pad=n=>String(n).padStart(2,'0');
+  a.href=url;a.download=`MASHPEDITION_Pigment_Audit_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.csv`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+document.getElementById('exportAudit').onclick=exportAudit;
 document.getElementById('search').addEventListener('input',applyFilter);document.getElementById('filter').addEventListener('change',applyFilter);document.querySelectorAll('.primary-filter input').forEach(cb=>cb.addEventListener('change',()=>{if(cb.checked){const other=document.querySelector(`input[data-key="${cb.dataset.key}"][data-mode="${cb.dataset.mode==='include'?'exclude':'include'}"]`);other.checked=false;}applyFilter();}));document.getElementById('clearFilters').onclick=()=>{document.getElementById('search').value='';document.getElementById('filter').value='all';document.querySelectorAll('.primary-filter input').forEach(x=>x.checked=false);applyFilter();};document.getElementById('reset').onclick=()=>{if(confirm('Clear every saved category mark?')){for(const k of Object.keys(review))delete review[k];localStorage.removeItem('mashpeditionPigmentAudit');document.querySelectorAll('.card').forEach(c=>{c.dataset.state='';for(const cls of ['looks','mud','wrong','spell'])c.querySelector('.'+cls).classList.remove('on')});applyFilter();}};
 const topBtn=document.getElementById('topBtn');window.addEventListener('scroll',()=>topBtn.style.display=scrollY>800?'block':'none');topBtn.onclick=()=>scrollTo({top:0,behavior:'smooth'});
 let tries=0;(function waitMixbox(){if(window.mixbox)return init();if(++tries<80)setTimeout(waitMixbox,100);else init();})();

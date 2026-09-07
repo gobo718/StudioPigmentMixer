@@ -14,3 +14,8 @@ Purpose: visually audit all 711 named Pigments from the completed Mix Order cata
 Mixbox is loaded from `https://scrtwpns.com/mixbox.js`. This audit build therefore needs internet access when the page is opened. Mixbox evaluation is available under its stated noncommercial evaluation terms; commercial launch requires the appropriate Mixbox license.
 
 Source catalog: `MASHpedition_color_workbook_Grey_Name_Lookup Complete.xlsm`, Mix Order rows 5–715 (711 unique named recipes).
+
+
+## Audit export
+
+Added an **Export audit** button. It downloads a CSV containing all 711 pigments with catalog number, pigment name, recipe, calculated HEX, and audit classification. This is an additive change: it uses the existing `mashpeditionPigmentAudit` browser-storage key and does not reset or migrate the user's saved review marks.
