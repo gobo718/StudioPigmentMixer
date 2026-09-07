@@ -13,7 +13,14 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;bac
 header{position:sticky;top:0;z-index:20;background:rgba(244,240,232,.97);backdrop-filter:blur(7px);border-bottom:1px solid var(--line);padding:10px 12px}
 .wrap{max-width:1200px;margin:auto}
 h1{font-size:19px;margin:0 0 3px} .sub{font-size:12px;color:var(--muted)}
-.toolbar{display:grid;grid-template-columns:minmax(140px,1fr) auto auto;gap:8px;margin-top:9px}
+.toolbar{display:grid;grid-template-columns:minmax(140px,1fr) auto auto auto;gap:8px;margin-top:9px}
+.filters-panel{margin-top:9px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px}
+.filters-title{font-size:12px;font-weight:800;margin-bottom:7px}
+.primary-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.primary-filter{border:1px solid var(--line);border-radius:8px;padding:6px;text-align:center;font-size:11px}
+.primary-filter b{display:block;margin-bottom:4px}.primary-filter label{display:block;white-space:nowrap}
+.primary-filter input{padding:0;margin-right:3px}
+@media(max-width:560px){.toolbar{grid-template-columns:1fr 1fr}.toolbar #search{grid-column:1/-1}.primary-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.primary-filter:last-child{grid-column:1/-1}}
 input,select,button{font:inherit;border:1px solid #bfb6aa;border-radius:9px;background:#fff;padding:9px;color:var(--ink)}
 button{cursor:pointer} button.active{background:#2f2b27;color:#fff;border-color:#2f2b27}
 .stats{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;font-size:12px} .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 8px}
@@ -26,8 +33,8 @@ main{max-width:1200px;margin:auto;padding:12px}
 .swatch{height:118px;display:flex;align-items:flex-start;justify-content:flex-end;padding:6px;border-bottom:1px solid rgba(0,0,0,.10)}
 .num{font-size:11px;background:rgba(255,255,255,.76);border:1px solid rgba(0,0,0,.16);border-radius:999px;padding:2px 6px;color:#222}
 .info{padding:9px} .name{font-weight:800;font-size:15px;line-height:1.15;min-height:34px} .recipe{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;margin-top:4px;color:#544e47} .hex{font-size:11px;color:var(--muted);margin-top:2px}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px} .actions button{padding:7px 4px;font-size:12px}
-.ok.on{background:#e4f1e9;border-color:#7aaa91;color:#194d35;font-weight:800} .q.on{background:#fff0d6;border-color:#c99a4a;color:#72470a;font-weight:800}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.actions button{padding:7px 4px;font-size:11px}
+.looks.on{background:#e4f1e9;border-color:#7aaa91;color:#194d35;font-weight:800}.mud.on{background:#e9dfcf;border-color:#9b7957;color:#563b26;font-weight:800}.wrong.on{background:#fff0d6;border-color:#c99a4a;color:#72470a;font-weight:800}.spell.on{background:#ece8ff;border-color:#9588cf;color:#493a86;font-weight:800}
 .hidden{display:none!important}
 .empty{padding:40px 16px;text-align:center;color:var(--muted)}
 #topBtn{position:fixed;right:14px;bottom:14px;z-index:25;border-radius:999px;background:#2f2b27;color:#fff;border:none;box-shadow:0 3px 12px rgba(0,0,0,.22);display:none}
@@ -37,13 +44,23 @@ main{max-width:1200px;margin:auto;padding:12px}
 <body>
 <header><div class="wrap">
 <h1>MASHPEDITION — 711 Pigment Catalog Auditor</h1>
-<div class="sub">Actual Mixbox pigment mixing from the completed recipe catalog. Tap ? when a name does not look right.</div>
+<div class="sub">Filter by recipe primaries, then bucket each swatch as Looks Right, Mudbucket, Name Wrong, or Misspelling.</div>
 <div class="toolbar">
 <input id="search" type="search" placeholder="Search name, recipe, or #…">
-<select id="filter" aria-label="Review filter"><option value="all">All 711</option><option value="question">? Needs review</option><option value="approved">✓ Approved</option><option value="unreviewed">Unreviewed</option></select>
-<button id="reset" title="Clear saved review marks">Reset</button>
+<select id="filter" aria-label="Category filter"><option value="all">All categories</option><option value="looks">✓ Looks right</option><option value="mud">🪣 Mudbucket</option><option value="wrong">✎ Name wrong</option><option value="spell">ABC Misspelling</option><option value="unreviewed">Unreviewed</option></select>
+<button id="clearFilters" title="Clear search and primary filters">Clear filters</button>
+<button id="reset" title="Clear saved category marks">Reset marks</button>
 </div>
-<div class="stats"><span class="pill" id="shownStat">711 shown</span><span class="pill" id="approvedStat">0 approved</span><span class="pill" id="questionStat">0 needs review</span><span class="pill" id="unreviewedStat">711 unreviewed</span></div>
+<div class="filters-panel">
+<div class="filters-title">Primary-color recipe filters — Include = must contain · Exclude = must not contain</div>
+<div class="primary-filters">
+<div class="primary-filter"><b>Red</b><label><input type="checkbox" data-key="r" data-mode="include">Include</label><label><input type="checkbox" data-key="r" data-mode="exclude">Exclude</label></div>
+<div class="primary-filter"><b>Yellow</b><label><input type="checkbox" data-key="y" data-mode="include">Include</label><label><input type="checkbox" data-key="y" data-mode="exclude">Exclude</label></div>
+<div class="primary-filter"><b>Blue</b><label><input type="checkbox" data-key="b" data-mode="include">Include</label><label><input type="checkbox" data-key="b" data-mode="exclude">Exclude</label></div>
+<div class="primary-filter"><b>White</b><label><input type="checkbox" data-key="w" data-mode="include">Include</label><label><input type="checkbox" data-key="w" data-mode="exclude">Exclude</label></div>
+<div class="primary-filter"><b>Black</b><label><input type="checkbox" data-key="k" data-mode="include">Include</label><label><input type="checkbox" data-key="k" data-mode="exclude">Exclude</label></div>
+</div></div>
+<div class="stats"><span class="pill" id="shownStat">711 shown</span><span class="pill" id="looksStat">0 looks right</span><span class="pill" id="mudStat">0 mudbucket</span><span class="pill" id="wrongStat">0 name wrong</span><span class="pill" id="spellStat">0 misspelling</span><span class="pill" id="unreviewedStat">711 unreviewed</span></div>
 </div></header>
 <main>
 <div id="engine">Loading Mixbox…</div>
@@ -56,6 +73,8 @@ const PIGMENTS=[{"id":1,"total":1,"pattern":"1","r":1,"y":0,"b":0,"w":0,"k":0,"m
 const PRIMARY={r:'#FF2E5B',y:'#FFEE00',b:'#0033FF',w:'#FFFFFF',k:'#000000'};
 const LABEL={r:'R',y:'Y',b:'B',w:'W',k:'K'};
 const review=JSON.parse(localStorage.getItem('mashpeditionPigmentAudit')||'{}');
+for(const id of Object.keys(review)){if(review[id]==='approved')review[id]='looks';else if(review[id]==='question')review[id]='wrong';}
+localStorage.setItem('mashpeditionPigmentAudit',JSON.stringify(review));
 function rgbString(hex){const h=hex.slice(1);return `rgb(${parseInt(h.slice(0,2),16)}, ${parseInt(h.slice(2,4),16)}, ${parseInt(h.slice(4,6),16)})`}
 function rgbToHex(v){
   if(Array.isArray(v)) return '#'+v.slice(0,3).map(x=>Math.max(0,Math.min(255,Math.round(Number(x)))).toString(16).padStart(2,'0')).join('').toUpperCase();
@@ -73,15 +92,15 @@ function mixRecipe(p){
 function recipeText(p){return [['r',p.r],['y',p.y],['b',p.b],['w',p.w],['k',p.k]].filter(x=>x[1]).map(([k,n])=>`${n}${LABEL[k]}`).join(' + ')}
 function contrast(hex){const h=hex.slice(1);const [r,g,b]=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16));const y=(r*299+g*587+b*114)/1000;return y>155?'#222':'#fff'}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function makeCard(p){const hex=mixRecipe(p),state=review[p.id]||'';const el=document.createElement('article');el.className='card';el.dataset.id=p.id;el.dataset.state=state;el.dataset.search=(p.name+' '+recipeText(p)+' '+p.id+' '+hex).toLowerCase();el.innerHTML=`<div class="swatch" style="background:${hex}"><span class="num" style="color:${contrast(hex)};background:${contrast(hex)==='#fff'?'rgba(0,0,0,.45)':'rgba(255,255,255,.76)'}">#${p.id}</span></div><div class="info"><div class="name">${esc(p.name)}</div><div class="recipe">${recipeText(p)}</div><div class="hex">${hex}</div><div class="actions"><button class="ok ${state==='approved'?'on':''}">✓ Looks right</button><button class="q ${state==='question'?'on':''}">? Name wrong</button></div></div>`;
-  el.querySelector('.ok').onclick=()=>setState(p.id,stateFor(p.id)==='approved'?'':'approved');
-  el.querySelector('.q').onclick=()=>setState(p.id,stateFor(p.id)==='question'?'':'question');
+function makeCard(p){const hex=mixRecipe(p),state=review[p.id]||'';const el=document.createElement('article');el.className='card';el.dataset.id=p.id;el.dataset.state=state;el.dataset.r=p.r>0?'1':'0';el.dataset.y=p.y>0?'1':'0';el.dataset.b=p.b>0?'1':'0';el.dataset.w=p.w>0?'1':'0';el.dataset.k=p.k>0?'1':'0';el.dataset.search=(p.name+' '+recipeText(p)+' '+p.id+' '+hex).toLowerCase();el.innerHTML=`<div class="swatch" style="background:${hex}"><span class="num" style="color:${contrast(hex)};background:${contrast(hex)==='#fff'?'rgba(0,0,0,.45)':'rgba(255,255,255,.76)'}">#${p.id}</span></div><div class="info"><div class="name">${esc(p.name)}</div><div class="recipe">${recipeText(p)}</div><div class="hex">${hex}</div><div class="actions"><button class="looks ${state==='looks'?'on':''}">✓ Looks right</button><button class="mud ${state==='mud'?'on':''}">🪣 Mudbucket</button><button class="wrong ${state==='wrong'?'on':''}">✎ Name wrong</button><button class="spell ${state==='spell'?'on':''}">ABC Misspelling</button></div></div>`;
+  for(const cls of ['looks','mud','wrong','spell'])el.querySelector('.'+cls).onclick=()=>setState(p.id,stateFor(p.id)===cls?'':cls);
   return el;}
 function stateFor(id){return review[id]||''}
-function setState(id,state){if(state)review[id]=state;else delete review[id];localStorage.setItem('mashpeditionPigmentAudit',JSON.stringify(review));const card=document.querySelector(`.card[data-id="${id}"]`);card.dataset.state=state;card.querySelector('.ok').classList.toggle('on',state==='approved');card.querySelector('.q').classList.toggle('on',state==='question');applyFilter();}
-function applyFilter(){const q=document.getElementById('search').value.trim().toLowerCase(),f=document.getElementById('filter').value;let shown=0,ap=0,qu=0;document.querySelectorAll('.card').forEach(c=>{const s=c.dataset.state;if(s==='approved')ap++;if(s==='question')qu++;const stateOK=f==='all'||(f==='unreviewed'&&!s)||(f===s);const textOK=!q||c.dataset.search.includes(q);const on=stateOK&&textOK;c.classList.toggle('hidden',!on);if(on)shown++;});document.getElementById('shownStat').textContent=shown+' shown';document.getElementById('approvedStat').textContent=ap+' approved';document.getElementById('questionStat').textContent=qu+' needs review';document.getElementById('unreviewedStat').textContent=(PIGMENTS.length-ap-qu)+' unreviewed';document.getElementById('empty').classList.toggle('hidden',shown>0);}
+function setState(id,state){if(state)review[id]=state;else delete review[id];localStorage.setItem('mashpeditionPigmentAudit',JSON.stringify(review));const card=document.querySelector(`.card[data-id="${id}"]`);card.dataset.state=state;for(const cls of ['looks','mud','wrong','spell'])card.querySelector('.'+cls).classList.toggle('on',state===cls);applyFilter();}
+function selectedPrimary(mode){return [...document.querySelectorAll(`input[data-mode="${mode}"]:checked`)].map(x=>x.dataset.key)}
+function applyFilter(){const q=document.getElementById('search').value.trim().toLowerCase(),f=document.getElementById('filter').value,inc=selectedPrimary('include'),exc=selectedPrimary('exclude');let shown=0,looks=0,mud=0,wrong=0,spell=0;document.querySelectorAll('.card').forEach(c=>{const st=c.dataset.state;if(st==='looks')looks++;if(st==='mud')mud++;if(st==='wrong')wrong++;if(st==='spell')spell++;const stateOK=f==='all'||(f==='unreviewed'&&!st)||(f===st);const textOK=!q||c.dataset.search.includes(q);const includeOK=inc.every(k=>c.dataset[k]==='1');const excludeOK=exc.every(k=>c.dataset[k]==='0');const on=stateOK&&textOK&&includeOK&&excludeOK;c.classList.toggle('hidden',!on);if(on)shown++;});document.getElementById('shownStat').textContent=shown+' shown';document.getElementById('looksStat').textContent=looks+' looks right';document.getElementById('mudStat').textContent=mud+' mudbucket';document.getElementById('wrongStat').textContent=wrong+' name wrong';document.getElementById('spellStat').textContent=spell+' misspelling';document.getElementById('unreviewedStat').textContent=(PIGMENTS.length-looks-mud-wrong-spell)+' unreviewed';document.getElementById('empty').classList.toggle('hidden',shown>0);}
 function init(){if(!window.mixbox){document.getElementById('engine').innerHTML='<b>Mixbox did not load.</b> This page needs an internet connection to load the Mixbox evaluation library.';return;}const g=document.getElementById('grid');const frag=document.createDocumentFragment();for(const p of PIGMENTS)frag.appendChild(makeCard(p));g.appendChild(frag);document.getElementById('engine').innerHTML='<b>Mixbox loaded.</b> Primaries: Red #FF2E5B · Yellow #FFEE00 · Blue #0033FF · White #FFFFFF · Black #000000. Multi-color recipes are mixed by weighted Mixbox latent values.';applyFilter();}
-document.getElementById('search').addEventListener('input',applyFilter);document.getElementById('filter').addEventListener('change',applyFilter);document.getElementById('reset').onclick=()=>{if(confirm('Clear every ✓ and ? review mark?')){for(const k of Object.keys(review))delete review[k];localStorage.removeItem('mashpeditionPigmentAudit');document.querySelectorAll('.card').forEach(c=>{c.dataset.state='';c.querySelector('.ok').classList.remove('on');c.querySelector('.q').classList.remove('on')});applyFilter();}};
+document.getElementById('search').addEventListener('input',applyFilter);document.getElementById('filter').addEventListener('change',applyFilter);document.querySelectorAll('.primary-filter input').forEach(cb=>cb.addEventListener('change',()=>{if(cb.checked){const other=document.querySelector(`input[data-key="${cb.dataset.key}"][data-mode="${cb.dataset.mode==='include'?'exclude':'include'}"]`);other.checked=false;}applyFilter();}));document.getElementById('clearFilters').onclick=()=>{document.getElementById('search').value='';document.getElementById('filter').value='all';document.querySelectorAll('.primary-filter input').forEach(x=>x.checked=false);applyFilter();};document.getElementById('reset').onclick=()=>{if(confirm('Clear every saved category mark?')){for(const k of Object.keys(review))delete review[k];localStorage.removeItem('mashpeditionPigmentAudit');document.querySelectorAll('.card').forEach(c=>{c.dataset.state='';for(const cls of ['looks','mud','wrong','spell'])c.querySelector('.'+cls).classList.remove('on')});applyFilter();}};
 const topBtn=document.getElementById('topBtn');window.addEventListener('scroll',()=>topBtn.style.display=scrollY>800?'block':'none');topBtn.onclick=()=>scrollTo({top:0,behavior:'smooth'});
 let tries=0;(function waitMixbox(){if(window.mixbox)return init();if(++tries<80)setTimeout(waitMixbox,100);else init();})();
 </script>
